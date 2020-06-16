@@ -1,5 +1,4 @@
-# wordpress-plugin
-Spotii plugin for Wordpress
+# Spotii plugin for Wordpress
 
 # WooCommerce
 This extension allows you to use Spotii as a payment gateway in your WooCommerce store.
