@@ -1,22 +1,14 @@
-<?php
+<?php 
 
-/***************** Spotii Product Widget starts here ********************************/
-add_action( 'wp_enqueue_scripts', 'enqueue_styles' );
-function enqueue_styles(){
-	wp_enqueue_script('spotii-gateway', plugins_url('../spotii-gateway/assets/js/spotii-product-widget.js', dirname(__FILE__)), array('jquery') );
-	//wp_enqueue_style('spotii-gateway', plugins_url('../spotii-gateway/assets/css/--popup.css', dirname(__FILE__)) );
-}
 
-add_action( 'woocommerce_before_add_to_cart_form', 'add_spotii_widget' );
-function add_spotii_widget(){
-	global $product;
-	$instal = wc_price($product->price / 4);
+function add_cart_widget($cart){
+global $woocommerce;
+$instal = wc_price($woocommerce->cart->get_cart_contents_total() / 4);
 
-	echo '
-		<div onclick="render()" class="spotii-product-widget" style="font-size: 12px; font-weight: 300; line-height: 1.25; cursor: pointer; margin-top: -1.5em; margin-bottom: 2em">
-		   or 4 cost free payments of 
-		   <span class="spotii-price">'. $instal. '</span>
-		    with 
+  echo '<div onclick="render()"  style="line-height: 1.25; cursor: pointer; margin-top:1.0em; margin-bottom:1em;color: #555555;font-family:sans-serif;" class="cart-widget">
+		   or 4 cost-free payments of 
+		   <span class="spotii-price">'. $instal . '</span>
+		     &nbsp;with 
 		   <span class="spotii-logo" style="height: 1.25em; display: inline-block;margin-bottom:-3px;">
 			  <svg viewBox="0 0 575 156" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="max-height: 100%; vertical-align: text-bottom; height: 1.25em">
 				 <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="nonzero">
@@ -30,10 +22,5 @@ function add_spotii_widget(){
 		   </span>
 		   <span style="text-decoration: underline; margin-left: 0.5em; margin-bottom:-3px;">Learn more</span>
 		</div>	
-	';
+  ';
 }
-/***************** Spotii Product Widget ends here ********************************/
-
-
-
-

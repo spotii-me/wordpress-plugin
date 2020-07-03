@@ -1,28 +1,15 @@
-<?php
-
-/***************** Spotii Cart Widget starts here ********************************/
-add_action( 'wp_enqueue_scripts', 'attachscripts' );
-function attachscripts(){
-	    error_log ('enqueue scripts');
-			wp_enqueue_script('spotii-gateway', plugins_url('../spotii-gateway/assets/js/spotii-product-widget.js', dirname(__FILE__)), array('jquery') );
-	//wp_enqueue_style('spotii-gateway', plugins_url('../spotii-gateway/assets/css/--popup.css', dirname(__FILE__)) );
-}
-
-add_action( 'woocommerce_proceed_to_checkout', 'add_spotii_widget' );
-function add_spotii_widget(){
-		    error_log ('add_spotii_widget');
-			add_action( 'wp_enqueue_scripts', 'attachscripts' );
+<?php 
 
 
-	global $woocommerce;
-    $woocommerce->cart->total;
-    $instal = wc_price($woocommerce->cart->total / 4);
-	echo '
-		<div onclick="render2()" class="spotii-product-widget" style="font-size: 12px; font-weight: 300; line-height: 1.25; cursor: pointer; margin-top: -3.0em; margin-left: 10px; margin-bottom: 2em">
-		   or 4 cost free payments of 
-		   <span class="spotii-price">'. $instal. '</span>
-		    with 
-		   <span class="spotii-logo" style="height: 1.25em; display: inline-block; margin-bottom:-3px;">
+function add_product_widget(){
+	global $product;
+  $instal = wc_price($product->get_price() / 4);
+
+  echo '<div onclick="render()"  style="line-height: 1.25; cursor: pointer; margin-top:1.0em; margin-bottom:1em;color: #555555;font-family:sans-serif;">
+		   or 4 cost-free payments of 
+		   <span class="spotii-price">'. $instal . '</span>
+		     &nbsp;with 
+		   <span class="spotii-logo" style="height: 1.25em; display: inline-block;margin-bottom:-3px;">
 			  <svg viewBox="0 0 575 156" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="max-height: 100%; vertical-align: text-bottom; height: 1.25em">
 				 <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="nonzero">
 					<path d="M93.4,42.68 L116.74,19.34 C102.292199,4.90544225 81.9818341,-2.03751498 61.7212349,0.532217389 C41.4606357,3.10194976 23.5267068,14.8955829 13.14,32.48 C39.0890855,17.1797853 72.1029078,21.3754119 93.4,42.68 Z" fill="#FFC4BE"></path>
@@ -33,11 +20,7 @@ function add_spotii_widget(){
 				 </g>
 			  </svg>
 		   </span>
-		   <span style="text-decoration: underline; margin-left: 0.5em;">Learn more</span>
+		   <span style="text-decoration: underline; margin-left: 0.5em; margin-bottom:-3px;">Learn more</span>
 		</div>	
-	';
+  ';
 }
-/***************** Spotii Cart Widget ends here ********************************/
-
-
-

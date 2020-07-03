@@ -17,6 +17,10 @@
 /*
  * Register our PHP class as a WooCommerce payment gateway
  */
+
+require __DIR__ . '/src/cart-widget.php';
+require __DIR__ . '/src/product-widget.php';
+
 add_filter('woocommerce_payment_gateways', 'spotii_add_gateway_class');
 function spotii_add_gateway_class($gateways)
 {
@@ -31,6 +35,15 @@ add_action('plugins_loaded', 'spotii_init_gateway_class');
 function spotii_init_gateway_class()
 {
     if (class_exists('WC_Spotii_Gateway') || !class_exists('WC_Payment_Gateway')) return;
+    
+    // ADD WIDGETS, ENQUEUE NEEDED CSS AND JS
+    add_action('woocommerce_proceed_to_checkout', 'add_cart_widget');
+    add_action( 'woocommerce_before_add_to_cart_form', 'add_product_widget' );
+    function enqueue_popup_scripts() {
+        wp_enqueue_script( 'spotii-gateway', plugins_url('spotii-gateway/assets/js/spotii-product-widget.js', dirname(__FILE__)));
+        wp_enqueue_style('spotii-gateway', plugins_url('/spotii-gateway/assets/css/spotii-checkout.css', dirname(__FILE__)), array(), null);
+    }
+    add_action( 'wp_enqueue_scripts', 'enqueue_popup_scripts' );
 
     class WC_Spotii_Gateway extends WC_Payment_Gateway
     {
@@ -38,7 +51,6 @@ function spotii_init_gateway_class()
         public function __construct()
         {
             add_action('woocommerce_api_wc_gateway_spotii', array($this, 'spotii_response_handler'));
-            add_action('wp_enqueue_scripts', array($this, 'enqueue_styles'));
 
             $this->id = 'spotii';
             $this->icon = 'https://spotii.me/img/logo.svg';
@@ -57,12 +69,17 @@ function spotii_init_gateway_class()
 
             // Load settings
             $this->init_settings();
-            $this->title = $this->get_option('title');
-            $this->description = $this->get_option('description');
-            $this->enabled = $this->get_option('enabled');
+            $this->title = $this->get_option('title', 'Spotii');
+            $this->description = $this->get_option('description', 'Buy now. Pay later');
+            $this->enabled = $this->get_option('enabled', 'yes');
             $this->testmode = false;
-            $this->public_key = 'U5XOJ0ANj4FBVlYFlz2NczVN9KPX5ocy';
-            $this->private_key = 'V6CnksS4O2p9trYz45nr5HuxZs5UuuaZYp3WmnEn4DRTN3ndNmFqlRcBhj2FQrRf';
+            $this->testmode = 'yes' === $this->get_option('testmode', 'yes');
+            $this->public_key = $this->get_option('public_key', '');
+            $this->private_key = $this->get_option('private_key', '');
+            $this->test_public_key = $this->get_option('test_public_key', '');
+            $this->test_private_key = $this->get_option('test_private_key', '');
+            
+            add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
 
             $auth_url = $this->testmode ? 'https://auth.sandbox.spotii.me/api/v1.0/merchant/authentication'
                 : 'https://auth.spotii.me/api/v1.0/merchant/authentication';
@@ -73,8 +90,8 @@ function spotii_init_gateway_class()
             );
 
             $body = array(
-                'public_key' => $this->public_key,
-                'private_key' => $this->private_key
+                'public_key' => $this->testmode ? $this->test_public_key : $this->public_key,
+                'private_key' => $this->testmode ? $this->test_private_key : $this->private_key
             );
 
             $payload = array(
@@ -167,14 +184,6 @@ function spotii_init_gateway_class()
         }
 
         /*
-         * Attach CSS file to payment description section
-         */
-        public function enqueue_styles()
-        {
-            wp_enqueue_style('spotii-gateway', plugins_url('/spotii-gateway/assets/css/spotii-checkout.css', dirname(__FILE__)));
-        }
-
-        /*
          * Get description text for Spotii option on checkout page
          */
         public function payment_fields()
@@ -183,7 +192,7 @@ function spotii_init_gateway_class()
 
             $total = WC()->cart->total;
             $instalment = wc_price($total / 4);
-            $time = ['Today', 'In 2 Weeks', 'In 4 Weeks', 'In 6 Weeks'];
+            $time = ['Today', 'Second payment', 'Third payment', 'Fourth payment'];
 
             echo '
                 <div class="cover" id="cover">
