@@ -10,7 +10,7 @@ $instal = wc_price($woocommerce->cart->get_cart_contents_total() / 4);
 		   <span class="spotii-price">'. $instal . '</span>
 		     &nbsp;with 
 		   <span class="spotii-logo" style="height: 1.25em; display: inline-block;margin-bottom:-3px;">
-			  <svg viewBox="0 0 575 156" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="max-height: 100%; vertical-align: text-bottom; height: 1.25em">
+			  <svg viewBox="0 0 575 156" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="max-height: 100%; vertical-align: text-bottom; height: 1.25em" class="spotii-logo-img">
 				 <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="nonzero">
 					<path d="M93.4,42.68 L116.74,19.34 C102.292199,4.90544225 81.9818341,-2.03751498 61.7212349,0.532217389 C41.4606357,3.10194976 23.5267068,14.8955829 13.14,32.48 C39.0890855,17.1797853 72.1029078,21.3754119 93.4,42.68 Z" fill="#FFC4BE"></path>
 					<path d="M23.33,112.75 L0,136.08 C14.4513957,150.506892 34.7594279,157.444629 55.0171766,154.875258 C75.2749252,152.305887 93.2078982,140.517891 103.6,122.94 C77.648524,138.237056 44.6360832,134.04624 23.33,112.75 Z" fill="#FF4B44"></path>

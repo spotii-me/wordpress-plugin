@@ -1,4 +1,4 @@
-.cover {
+.spotii-cover {
     max-width: 100%;
     padding-right:5%;
     width: auto;
@@ -7,21 +7,20 @@
     font-family: Lato,sans-serif !important;
     font-size: 1.6rem !important;
     font-weight: 400;
-    font-family: initial !important;
     font-size: initial !important;
 }
 
 .spotii-payment-text {
     color: #000000;
     display: inline-block;
-    font-size: 1.4rem;
+    font-size: 0.9rem;
     margin-left: -10px;
 }
-.progressbar-container {
+.spotii-progressbar-container {
     margin-top: 45px;
     margin-left: 20px;
 }
-.bar {
+.spotii-bar {
     width: 100%;
     height: 4px;
     margin: 5px 4px -15px -12px;
@@ -29,7 +28,7 @@
 }
 
 
-.steps {
+.spotii-steps {
     list-style-type: none;
     display: flex;
     justify-content: space-between;
@@ -45,30 +44,30 @@
     text-align: center;
     left: 50%;
     transform: translateX(-50%);
-    font-size: 1.38rem;
+    font-size: 0.85rem;
    
     font-weight: 400;
     color:#000000;
 }
 
-.time-period {
+.spotii-time-period {
     position: absolute;
     overflow-wrap: break-word;
-    width: 85px;
+    width: 65px;
     text-align: center;
-    left: 50%;
+    left: 48%;
     transform: translateX(-50%);
-    font-size: 1.18rem;
+    font-size: 0.8rem;
     font-weight: 400;
     color:#000000;
 }
 
-.wp-caption, img {
+img.spotii-checkout-img {
     height: auto;
     width: 40px;
 }
 
-.highlight {
+.spotii-highlight {
     box-shadow: 0px 0px 9px 8px rgba(255, 77, 74, 0.15);
     width: 13px;
     height: 13px;
@@ -79,13 +78,13 @@
     margin-top: 6px;
 }
 
-.highlight>.spotii-installment-amount {
+.spotii-highlight>.spotii-installment-amount {
     bottom: 10px;
 }
-.highlight>.time-period {
+.spotii-highlight>.spotii-time-period {
     top: 18px;
 }
-.step {
+.spotii-step {
     background: #fff;
     position: relative;
     border-radius: 50%;
@@ -94,18 +93,18 @@
     height: 13px;
     margin-top: 6px;
 }
-.step>.spotii-installment-amount {
+.spotii-step>.spotii-installment-amount {
     bottom: 10px;
 }
-.step>.time-period {
+.spotii-step>.spotii-time-period {
     top: 18px;
 }
 
 .spotii-grand-total {
     color: #000000; 
-    margin-top: 40px;
+    margin-top: 55px;
     float: right;
-    font-size: 1.5rem;
+    font-size: 0.95rem;
 }
 
 /*============================================================================== 
@@ -113,11 +112,11 @@ iPhone 5, 5S, 5C and 5SE || 320 x 568 || Default, Portrait and Landscape
 ================================================================================ */
 @media only screen and (min-width: 320px) 
 and (max-width: 568px){
-    .cover {
-    max-width: 80%;
+    .spotii-cover {
+    max-width: 85%;
     width:auto;
     }
-    .progressbar-container {
+    .spotii-progressbar-container {
     margin-top: 45px;
     margin-left: 20px;
     width: auto !important;
@@ -136,35 +135,45 @@ iPhone 6, 6S, 7 and 8 || 375 x 667 || Default, Portrait and Landscape
 ================================================================================ */
 @media only screen and (min-width: 375px) 
 and (max-width: 667px){ 
-     .cover {
+     .spotii-cover {
     max-width: 80%;
     width:auto;
     }
-    .progressbar-container {
+    .spotii-progressbar-container {
     margin-top: 45px;
     margin-left: 20px;
     width: auto !important;
     }
-    .spotii-grand-total {
+    .spotii-spotii-grand-total {
     color: #000000; 
     margin-top: 40px;
     float: right;
-    
     font-size: 0.8rem;
+    }
+    .spotii-time-period {
+        font-size:0.75rem;
+        width: 60px;
     }
 }
 
+@media only screen and (max-width: 375px) {
+    .spotii-popup__close  {
+        right: unset !important;
+        left: 25px !important;
+        top: 30px !important;
+    }
+}
 
 /*============================================================================== 
 iPhone 6+, 7+ and 8+ || 414 x 736 || Default, Portrait and Landscape
 ================================================================================ */
 @media only screen and (min-width: 414px) 
 and (max-width: 736px){ 
-     .cover {
+     .spotii-cover {
     max-width: 80%;
     width:auto;
     }
-    .progressbar-container {
+    .spotii-progressbar-container {
     margin-top: 45px;
     margin-left: 20px;
     width: auto !important;
@@ -184,12 +193,12 @@ iPhone X || 375 x 812 || Default, Portrait and Landscape
 ================================================================================ */
 @media only screen and (min-width: 375px) 
 and (max-width: 812px){ 
-     .cover {
-    max-width: 80%;
+     .spotii-cover {
+    max-width: 95%;
     width:auto;
     }
 
-    .progressbar-container {
+    .spotii-progressbar-container {
         margin-top: 45px;
         margin-left: 20px;
         width: auto !important;
@@ -198,13 +207,78 @@ and (max-width: 812px){
         color: #000000;
         margin-top: 40px;
         float: right;
+        margin-top:55px;
         font-size: 0.8rem;
     }
 }
-.wc_payment_method payment_method_spotii
+.payment_method_spotii
 {
 min-height:30px !important;
 }
-.cart-widget {
-    font-size: 1.6rem;
+.spotii-cart-widget {
+    font-size: 1.1rem;
+}
+@-webkit-keyframes sptiianimloading {
+  to {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+@keyframes sptiianimloading {
+  to {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+.sptii-overlay {
+  z-index: 1000;
+  width: auto;
+  height: auto;
+  background: rgba(0, 0, 0, 0.88);
+  display: flex;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.sptii-overlay .sptii-loading-icon {
+  display: inline-block;
+  vertical-align: middle;
+  margin-top: -0.125em;
+  -webkit-animation: sptiianimloading 1s linear infinite;
+  animation: sptiianimloading 1s linear infinite;
+}
+.sptii-overlay .sptii-loading-icon svg {
+  display: inline-block;
+}
+.sptii-overlay .sptii-loading {
+  width: 24px;
+  padding: 16px;
+}
+.sptii-overlay .sptii-loading .sptii-loading-icon {
+  width: 24px;
+  height: 24px;
+}
+.sptii-overlay .sptii-logo svg {
+  width: 20em;
+  height: 10em;
+}
+.sptii-overlay .sptii-spinnerText {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.sptii-overlay .sptii-text {
+  color: #858585;
+  font-family: Overpass, sans-serif;
+  font-size: large;
+}
+.sptii-overlay {
+  display: none;
 }

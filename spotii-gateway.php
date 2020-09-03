@@ -80,7 +80,7 @@ function spotii_init_gateway_class()
             
             add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
 
-            $auth_url = $this->testmode ? 'https://auth.dev.spotii.me/api/v1.0/merchant/authentication'
+            $auth_url = $this->testmode ? 'https://auth.sandbox.spotii.me/api/v1.0/merchant/authentication'
                 : 'https://auth.spotii.me/api/v1.0/merchant/authentication';
 
             $headers = array(
@@ -130,7 +130,7 @@ function spotii_init_gateway_class()
                     'title' => 'Enable/Disable',
                     'label' => 'Enable Spotii Gateway',
                     'type' => 'checkbox',
-                    'description' => __('Don&rsquo;t have a Spotii Merchant account yet?', 'woocommerce') . ' ' . '<a href="https://dashboard.dev.spotii.me/signup" target="_blank">' . __('Apply online today!', 'woocommerce') . '</a>',
+                    'description' => __('Don&rsquo;t have a Spotii Merchant account yet?', 'woocommerce') . ' ' . '<a href="https://dashboard.sandbox.spotii.me/signup" target="_blank">' . __('Apply online today!', 'woocommerce') . '</a>',
                     'default' => 'no',
                 ),
                 'title' => array(
@@ -234,16 +234,31 @@ function spotii_init_gateway_class()
          */
         public function process_payment($order_id)
         {
+            if(session_id() == '' || !isset($_SESSION)) {
+            // session isn't started
+            session_start();
+           // echo '<script>console.log("started ");</script>';
+             }
             $order = new WC_Order($order_id);
-            //$order = wc_get_order($order_id);
+
             try {
-                $url = $this->testmode ? 'https://api.dev.spotii.me/api/v1.0/checkouts/'
+                $url = $this->testmode ? 'https://api.sandbox.spotii.me/api/v1.0/checkouts/'
                     : 'https://api.spotii.me/api/v1.0/checkouts/';
                 $payload = $this->get_checkout_payload($order);
+               // echo '<div><script>console.log("$url "+'.$url.');</script>';
                 $response = wp_remote_post($url, $payload);
-                //echo '<script>console.log("response "+'.$response[0].$response[1].$response[2].$response[3].');</script>';
-                add_action('woocommerce_api_wc_gateway_spotii', array($this, 'spotii_response_handler'));
 
+                ob_start();?>
+                <script>
+                var array = <?php $response ?>;
+                var iterator = array.values(); 
+                // Here all the elements of the array is being printed. 
+                for (let elements of iterator) { 
+                console.log(elements); 
+                }</script>          
+                <?php echo ob_get_clean();
+               // echo ' </div>';
+                add_action('woocommerce_api_wc_gateway_spotii', array($this, 'spotii_response_handler'));
 
                 if (is_wp_error($response)) {
                     error_log("Exception [WP_Error_Spotii Process Payment]: " . $response);
@@ -259,8 +274,264 @@ function spotii_init_gateway_class()
                 if (array_key_exists('checkout_url', $response_body_arr)) {
                     $redirect_url = $response_body_arr['checkout_url']; 
                     //here is the redirect 
-                    //echo '<script>console.log("redirect "+'.$redirect_url.');</script>';
-                    echo'<script type="text/javascript" src="//code.jquery.com/jquery-3.5.1.min.js"></script>
+                     echo '<div><script>console.log("redirect "+'.$redirect_url.');</script></div>';
+                    
+                  return array('result' => 'success', 'redirect' => $redirect_url);
+                } else {
+                    error_log("Error on process payment: " . $response_body);
+                    $order->add_order_note('Checkout with Spotii failed: ' . $response_body);
+                    $res = json_decode($response_body, true);
+
+                    if ($res['total']) {
+
+                        foreach ($res['total'] as $msg) {
+
+                            if (!in_array('less than allowed', $msg)) {
+
+                                wc_add_notice(__('Oops! ', 'woothemes') . "You don't quite have enough in your basket: Spotii is available for purchases over AED 200. With a little more shopping, you can split your payment over 4 cost-free instalments.", 'error');
+                            }
+                        }
+                    } else
+                        wc_add_notice(__('Checkout Error: ', 'woothemes') . "Please try again", 'error');
+                }
+            } catch (Exception $e) {
+                error_log("Error on process_payment[Spotii]: " . $e->getMessage());
+            }
+        }
+
+        /**
+         * Helper to prepare checkout payload
+         */
+        private function get_checkout_payload($order)
+        {
+            $order_id = $order->get_id();
+
+            $headers = $this->get_header();
+            $notify_url = get_home_url(null, "wc-api/wc_gateway_spotii");
+            $body = array(
+                "reference" => $order_id,
+                "display_reference" => $order_id,
+                "description" => "Order #" . $order_id,
+                "total" => $order->get_total(),
+                "currency" => $order->get_currency(),
+                "confirm_callback_url" => $notify_url . "?o=" . $order_id . "&s=s",
+                "reject_callback_url" => $notify_url . "?o=" . $order_id . "&s=f",
+
+                // Order
+                "order" => array(
+                    "tax_amount" => $order->get_total_tax(),
+                    "shipping_amount" => $order->get_shipping_total(),
+                    "discount" => $order->get_total_discount(),
+                    "customer" => array(
+                        "first_name" =>$order->get_billing_first_name(),
+                        "last_name" => $order->get_billing_last_name(),
+                        "email" => $order->get_billing_email(),
+                        "phone" => $order->get_billing_phone(),
+                    ),
+
+                    "billing_address" => array(
+                        "title" => "",
+                        "first_name" => $order->get_billing_first_name(),
+                        "last_name" => $order->get_billing_last_name(),
+                        "line1" => $order->get_billing_address_1(),
+                        "line2" => $order->get_billing_address_2(),
+                        "line3" => "",
+                        "line4" => $order->get_billing_city(),
+                        "state" => $order->get_billing_state(),
+                        "postcode" => $order->get_billing_postcode(),
+                        "country" => $order->get_billing_country(),
+                        "phone" => $order->get_billing_phone(),
+                    ),
+
+                    "shipping_address" => array(
+                        "title" => "",
+                        "first_name" => $order->get_shipping_first_name(),
+                        "last_name" => $order->get_shipping_last_name(),
+                        "line1" => $order->get_shipping_address_1(),
+                        "line2" => $order->get_shipping_address_2(),
+                        "line3" => "",
+                        "line4" => $order->get_shipping_city(),
+                        "state" => $order->get_shipping_state(),
+                        "postcode" => $order->get_shipping_postcode(),
+                        "country" => $order->get_shipping_country(),
+                        "phone" => $order->get_billing_phone(),
+                    )
+                )
+            );
+
+            foreach ($order->get_items() as $item) {
+                $product = wc_get_product($item['product_id']);
+                $lines[] = array(
+                    "sku" => $product->get_sku(),
+                    "reference" => $item->get_id(),
+                    "title" => $product->get_title(),
+                    "upc" => $product->get_sku(),
+                    "quantity" => $item->get_quantity(),
+                    "price" => $product->get_price(),
+                    "currency" => $order->get_currency(),
+                    "image_url" => "",       //$product->get_image(),
+                );
+            }
+            $body['order']['lines'] = $lines;
+
+            $payload = array(
+                'method' => 'POST',
+                'headers' => $headers,
+                'body' => wp_json_encode($body)
+            );
+
+            return $payload;
+        }
+
+        /**
+         * Helper to prepare authentication header
+         */
+        private function get_header()
+        {
+            $headers = array(
+                'Accept' => 'application/json; indent=4',
+                'Content-Type' => 'application/json',
+                'Access-Control-Allow-Origin' => '*',
+                'Authorization' => 'Bearer ' . $this->token
+            );
+            return $headers;
+        }
+
+        /**
+         * Called when Spotii checkout page redirects back to merchant page
+         */
+      /*  public function spotii_response_handler()
+        {
+            echo '<script>console.log("spotii handler");</script>';
+            $order_id = $_GET['o'];
+            $order = wc_get_order($order_id);
+            error_log('orderstatus' . $order->get_status());
+            if ($order->has_status('completed') || $order->has_status('processing')) {
+
+                return;
+            }
+
+            $status = $_GET['s'];
+            // Check for url param success
+            if ($status == 's') {
+                try {
+                    // Capture payment
+                    $url_part = $this->testmode ? 'https://api.sandbox.spotii.me/api/v1.0/orders/'
+                        : 'https://api.spotii.me/api/v1.0/orders/';
+                    $url = $url_part . $order_id . '/capture/';
+
+                    $headers = $this->get_header();
+                    $payload = array(
+                        'method' => 'POST',
+                        'headers' => $headers,
+                        'body' => '{}'
+                    );
+                   //here
+                    echo '<script>console.log("url "+'.$url.');</script>';
+                    echo '<script>console.log("payload "+'.$payload.');</script>';
+                    $response = wp_remote_post($url, $payload);
+                    //echo '<script>console.log('.$response.');</script>';
+
+                    if (is_wp_error($response)) {
+                        error_log('WP_ERROR [Spotii spotii_response_handler] ');
+                        throw new Exception(__('Network connection issue'));
+                    }
+                    if (empty($response['body'])) {
+                        error_log('Response Empty [Spotii spotii_response_handler] ');
+                        throw new Exception(__('Empty response body'));
+                    }
+                    $response_body = $response['body'];
+                    $res = json_decode($response_body, true);
+
+                    if ($res) {
+                        // Check for capture success
+                        if ($res['status'] == 'SUCCESS' && $res['amount'] == $order->get_total() && $res['currency'] == $order->get_currency()) {
+                            $order->add_order_note('Payment successful');
+                            //wc_add_notice(__('Payment Success: ', 'woothemes') . "Payment complete", 'success');
+                            $order->payment_complete();
+                            $redirect_url = $order->get_checkout_order_received_url();
+                            echo '<script>console.log("success "+'.$redirect_url.');</script>';
+                            wp_redirect($redirect_url);
+                            error_log('redirect_url ' . $redirect_url);
+                            exit;
+                        } else {
+                            // capture failed
+                            error_log('capture failed [Spotii spotii_response_handler]');
+                        }
+                    } else {
+                        error_log('Json Response in capture empty[Spotii spotii_response_handler] ');
+                    }
+                } catch (Exception $e) {
+                    error_log("Error on spotii_response handler[Spotii spotii_response_handler]: " . $e->getMessage());
+                }
+            } else {
+                // url param failed
+                error_log('url param failed [Spotii spotii_response_handler]');
+            }
+
+            // If you are here, payment was unsuccessful
+            $order->add_order_note('Payment with Spotii failed' . $response_body);
+            wc_add_notice(__('Checkout Error: ', 'woothemes') . "Payment with Spotii failed. Please try again", 'error');
+            $order->update_status('failed', __('Payment with Spotii failed', 'woocommerce'));
+            $redirect_url = $order->get_cancel_order_url();
+            echo '<script>console.log("fail "+'.$redirect_url.');</script>';
+            wp_redirect($redirect_url);
+            exit;
+        }*/
+
+        /**
+         * Process refunds
+         */
+        public function process_refund($order_id, $amount = null, $reason = '')
+        {
+            $order = wc_get_order($order_id);
+
+            $url_part = $this->testmode ? 'https://api.sandbox.spotii.me/api/v1.0/orders/'
+                : 'https://api.spotii.me/api/v1.0/orders/';
+            $url = $url_part . $order_id . '/refund';
+
+            $headers = $this->get_header();
+            $body = array(
+                "total"     => $amount,
+                "currency"  => $order->get_currency(),
+            );
+            $payload = array(
+                'method' => 'POST',
+                'headers' => $headers,
+                'body' => wp_json_encode($body)
+            );
+
+            $response = wp_remote_post($url, $payload);
+            $response_body = $response['body'];
+            $res = json_decode($response_body, true);
+
+            if (is_wp_error($response)) {
+                error_log('WP_ERROR [Spotii Process Refund] ');
+                throw new Exception(__('Network connection issue'));
+            }
+            if (empty($response['body'])) {
+                error_log('Response Body Empty [Spotii Process Refund] ');
+                throw new Exception(__('Empty response body'));
+            }
+
+            // Check for capture success
+            if ($res['status'] == 'SUCCESS' && $res['amount'] == $amount && $res['currency'] == $order->get_currency()) {
+                $order->add_order_note('Refund successful');
+                wc_add_notice(__('Refund Success: ', 'woothemes') . "Refund complete", 'success');
+                return true;
+            } else {
+                $order->add_order_note('Refund failed' . $response_body);
+                wc_add_notice(__('Refund Error: ', 'woothemes') . "Refund with Spotii failed", 'error');
+
+                error_log("Error on refund: " . $response_body);
+                return false;
+            }
+        }
+    }
+}
+
+/*
+echo'<script type="text/javascript" src="//code.jquery.com/jquery-3.5.1.min.js"></script>
                     <script src="https://widget.spotii.me/v1/javascript/fancybox-2.0.min.js"></script>
                     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
                     <link rel="stylesheet" href="https://widget.spotii.me/v1/javascript/fancybox-2.0.min.css">
@@ -426,252 +697,5 @@ function spotii_init_gateway_class()
                     } 
                   };
                   </script>';
-                  return array('result' => 'success', 'redirect' => $redirect_url);
-                } else {
-                    error_log("Error on process payment: " . $response_body);
-                    $order->add_order_note('Checkout with Spotii failed: ' . $response_body);
-                    $res = json_decode($response_body, true);
 
-                    if ($res['total']) {
-
-                        foreach ($res['total'] as $msg) {
-
-                            if (!in_array('less than allowed', $msg)) {
-
-                                wc_add_notice(__('Oops! ', 'woothemes') . "You don't quite have enough in your basket: Spotii is available for purchases over AED 200. With a little more shopping, you can split your payment over 4 cost-free instalments.", 'error');
-                            }
-                        }
-                    } else
-                        wc_add_notice(__('Checkout Error: ', 'woothemes') . "Please try again", 'error');
-                }
-            } catch (Exception $e) {
-                error_log("Error on process_payment[Spotii]: " . $e->getMessage());
-            }
-        }
-
-        /**
-         * Helper to prepare checkout payload
-         */
-        private function get_checkout_payload($order)
-        {
-            $order_id = $order->get_id();
-
-            $headers = $this->get_header();
-            $notify_url = get_home_url(null, "wc-api/wc_gateway_spotii");
-            $body = array(
-                "reference" => $order_id,
-                "display_reference" => $order_id,
-                "description" => "Order #" . $order_id,
-                "total" => $order->get_total(),
-                "currency" => $order->get_currency(),
-                "confirm_callback_url" => $notify_url . "?o=" . $order_id . "&s=s",
-                "reject_callback_url" => $notify_url . "?o=" . $order_id . "&s=f",
-
-                // Order
-                "order" => array(
-                    "tax_amount" => $order->get_total_tax(),
-                    "shipping_amount" => $order->get_shipping_total(),
-                    "discount" => $order->get_total_discount(),
-                    "customer" => array(
-                        "first_name" =>$order->get_billing_first_name(),
-                        "last_name" => $order->get_billing_last_name(),
-                        "email" => $order->get_billing_email(),
-                        "phone" => $order->get_billing_phone(),
-                    ),
-
-                    "billing_address" => array(
-                        "title" => "",
-                        "first_name" => $order->get_billing_first_name(),
-                        "last_name" => $order->get_billing_last_name(),
-                        "line1" => $order->get_billing_address_1(),
-                        "line2" => $order->get_billing_address_2(),
-                        "line3" => "",
-                        "line4" => $order->get_billing_city(),
-                        "state" => $order->get_billing_state(),
-                        "postcode" => $order->get_billing_postcode(),
-                        "country" => $order->get_billing_country(),
-                        "phone" => $order->get_billing_phone(),
-                    ),
-
-                    "shipping_address" => array(
-                        "title" => "",
-                        "first_name" => $order->get_shipping_first_name(),
-                        "last_name" => $order->get_shipping_last_name(),
-                        "line1" => $order->get_shipping_address_1(),
-                        "line2" => $order->get_shipping_address_2(),
-                        "line3" => "",
-                        "line4" => $order->get_shipping_city(),
-                        "state" => $order->get_shipping_state(),
-                        "postcode" => $order->get_shipping_postcode(),
-                        "country" => $order->get_shipping_country(),
-                        "phone" => $order->get_billing_phone(),
-                    )
-                )
-            );
-
-            foreach ($order->get_items() as $item) {
-                $product = wc_get_product($item['product_id']);
-                $lines[] = array(
-                    "sku" => $product->get_sku(),
-                    "reference" => $item->get_id(),
-                    "title" => $product->get_title(),
-                    "upc" => $product->get_sku(),
-                    "quantity" => $item->get_quantity(),
-                    "price" => $product->get_price(),
-                    "currency" => $order->get_currency(),
-                    "image_url" => "",       //$product->get_image(),
-                );
-            }
-            $body['order']['lines'] = $lines;
-
-            $payload = array(
-                'method' => 'POST',
-                'headers' => $headers,
-                'body' => wp_json_encode($body)
-            );
-
-            return $payload;
-        }
-
-        /**
-         * Helper to prepare authentication header
-         */
-        private function get_header()
-        {
-            $headers = array(
-                'Accept' => 'application/json; indent=4',
-                'Content-Type' => 'application/json',
-                'Access-Control-Allow-Origin' => '*',
-                'Authorization' => 'Bearer ' . $this->token
-            );
-            return $headers;
-        }
-
-        /**
-         * Called when Spotii checkout page redirects back to merchant page
-         */
-        public function spotii_response_handler()
-        {
-            $order_id = $_GET['o'];
-            $order = wc_get_order($order_id);
-            error_log('orderstatus' . $order->get_status());
-            if ($order->has_status('completed') || $order->has_status('processing')) {
-
-                return;
-            }
-
-            $status = $_GET['s'];
-            // Check for url param success
-            if ($status == 's') {
-                try {
-                    // Capture payment
-                    $url_part = $this->testmode ? 'https://api.dev.spotii.me/api/v1.0/orders/'
-                        : 'https://api.spotii.me/api/v1.0/orders/';
-                    $url = $url_part . $order_id . '/capture/';
-
-                    $headers = $this->get_header();
-                    $payload = array(
-                        'method' => 'POST',
-                        'headers' => $headers,
-                        'body' => '{}'
-                    );
-
-                    //echo '<script>console.log("suspect "+'.$url.');</script>';         
-                    $response = wp_remote_post($url, $payload);
-
-                    if (is_wp_error($response)) {
-                        error_log('WP_ERROR [Spotii spotii_response_handler] ');
-                        throw new Exception(__('Network connection issue'));
-                    }
-                    if (empty($response['body'])) {
-                        error_log('Response Empty [Spotii spotii_response_handler] ');
-                        throw new Exception(__('Empty response body'));
-                    }
-                    $response_body = $response['body'];
-                    $res = json_decode($response_body, true);
-
-                    if ($res) {
-                        // Check for capture success
-                        if ($res['status'] == 'SUCCESS' && $res['amount'] == $order->get_total() && $res['currency'] == $order->get_currency()) {
-                            $order->add_order_note('Payment successful');
-                            //wc_add_notice(__('Payment Success: ', 'woothemes') . "Payment complete", 'success');
-                            $order->payment_complete();
-                            $redirect_url = $order->get_checkout_order_received_url();
-                            //echo '<script>console.log("in res "+'.$redirect_url.');</script>';
-                            wp_redirect($redirect_url);
-                            error_log('redirect_url ' . $redirect_url);
-                            exit;
-                        } else {
-                            // capture failed
-                            error_log('capture failed [Spotii spotii_response_handler]');
-                        }
-                    } else {
-                        error_log('Json Response in capture empty[Spotii spotii_response_handler] ');
-                    }
-                } catch (Exception $e) {
-                    error_log("Error on spotii_response handler[Spotii spotii_response_handler]: " . $e->getMessage());
-                }
-            } else {
-                // url param failed
-                error_log('url param failed [Spotii spotii_response_handler]');
-            }
-
-            // If you are here, payment was unsuccessful
-            $order->add_order_note('Payment with Spotii failed' . $response_body);
-            wc_add_notice(__('Checkout Error: ', 'woothemes') . "Payment with Spotii failed. Please try again", 'error');
-            $order->update_status('failed', __('Payment with Spotii failed', 'woocommerce'));
-            $redirect_url = $order->get_cancel_order_url();
-            wp_redirect($redirect_url);
-            exit;
-        }
-
-        /**
-         * Process refunds
-         */
-        public function process_refund($order_id, $amount = null, $reason = '')
-        {
-            $order = wc_get_order($order_id);
-
-            $url_part = $this->testmode ? 'https://api.dev.spotii.me/api/v1.0/orders/'
-                : 'https://api.spotii.me/api/v1.0/orders/';
-            $url = $url_part . $order_id . '/refund';
-
-            $headers = $this->get_header();
-            $body = array(
-                "total"     => $amount,
-                "currency"  => $order->get_currency(),
-            );
-            $payload = array(
-                'method' => 'POST',
-                'headers' => $headers,
-                'body' => wp_json_encode($body)
-            );
-
-            $response = wp_remote_post($url, $payload);
-            $response_body = $response['body'];
-            $res = json_decode($response_body, true);
-
-            if (is_wp_error($response)) {
-                error_log('WP_ERROR [Spotii Process Refund] ');
-                throw new Exception(__('Network connection issue'));
-            }
-            if (empty($response['body'])) {
-                error_log('Response Body Empty [Spotii Process Refund] ');
-                throw new Exception(__('Empty response body'));
-            }
-
-            // Check for capture success
-            if ($res['status'] == 'SUCCESS' && $res['amount'] == $amount && $res['currency'] == $order->get_currency()) {
-                $order->add_order_note('Refund successful');
-                wc_add_notice(__('Refund Success: ', 'woothemes') . "Refund complete", 'success');
-                return true;
-            } else {
-                $order->add_order_note('Refund failed' . $response_body);
-                wc_add_notice(__('Refund Error: ', 'woothemes') . "Refund with Spotii failed", 'error');
-
-                error_log("Error on refund: " . $response_body);
-                return false;
-            }
-        }
-    }
-}
+*/
