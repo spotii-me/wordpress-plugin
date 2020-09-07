@@ -162,20 +162,8 @@
         mageUrl,
         $t,
         ) { 
-        var LoadCSS = function (filename) {
-            var fileref = document.createElement("link");
-            fileref.setAttribute("rel", "stylesheet");
-            fileref.setAttribute("type", "text/css");
-            fileref.setAttribute("href", filename);
-    
-            $("head").append(fileref);
-        };    
+         
         const openIframeSpotiiCheckout = function(url) {
-            LoadCSS("https://widget.spotii.me/v1/javascript/fancybox-2.0.min.css");
-            var script = document.createElement('script');
-            script.type = 'text/javascript';
-            script.src = 'https://widget.spotii.me/v1/javascript/fancybox-2.0.min.js';
-            $("head").append(script);
 
             console.log("opened spotii iframe");
             // Make a post request to redirect
