@@ -21,6 +21,6 @@ $instal = wc_price($woocommerce->cart->get_cart_contents_total() / 4);
 			  </svg>
 		   </span>
 		   <span style="text-decoration: underline; margin-left: 0.5em; margin-bottom:-3px;">Learn more</span>
-		</div>	
+		   </div>	
   ';
 }
