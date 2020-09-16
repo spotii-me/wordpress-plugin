@@ -47,17 +47,17 @@ function spotii_init_gateway_class()
         $wp_scripts->registered['jquery-core']->src = 'https://code.jquery.com/jquery-3.5.1.min.js';
         $wp_scripts->registered['jquery']->deps = ['jquery-core'];
        
-        wp_enqueue_style('spotii-gateway', plugins_url('/spotii-gateway/assets/css/spotii-checkout.css', dirname(__FILE__)), array(), true);
-        wp_enqueue_script( 'spotii-widget', plugins_url('spotii-gateway/assets/js/spotii-product-widget.js', dirname(__FILE__)), false, null);
+        wp_enqueue_style('spotii-gateway',plugin_dir_url( __FILE__ ) .  'assets/css/spotii-checkout.css', true);
+        wp_enqueue_script( 'spotii-widget', plugin_dir_url( __FILE__ ) . 'assets/js/spotii-product-widget.js', array('jquery'), '2.0', true);
         if (is_checkout() ) {
-            // fancybox 
-            wp_enqueue_style( 'spotii-fancybox', esc_url_raw( 'https://widget.spotii.me/v1/javascript/fancybox-2.0.min.css' ), array(), true );
-            wp_enqueue_script( 'spotii-fancybox', esc_url_raw( 'https://widget.spotii.me/v1/javascript/fancybox-2.0.min.js' ), array('jquery'), '2.0', true  );
+            // lightbox 
+            wp_enqueue_style( 'spotii-lightbox', esc_url_raw( 'https://demo.chodri.com/iframe-lightbox.css' ), array(), true );
+            wp_enqueue_script( 'spotii-lightbox', esc_url_raw( 'https://demo.chodri.com/iframe-lightbox.js' ), array('jquery'), '2.0', true  );
         }
         // spotii checkout 
         wp_enqueue_script( 'spotii-checkout', plugin_dir_url( __FILE__ ) . 'assets/js/spotii-checkout.js', array('jquery'), '2.0', true );
         if (is_checkout() ) {
-            // over ride woo commerce checkout js 
+            // override woo commerce checkout js 
             wp_deregister_script('wc-checkout');
             wp_enqueue_script('wc-checkout', plugin_dir_url( __FILE__ ) . 'assets/js/woocommerce-checkout.js', array('jquery'), '2.0', true);
         }
@@ -106,7 +106,7 @@ function spotii_init_gateway_class()
             
             add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
 
-            $auth_url = $this->testmode ? 'https://auth.dev.spotii.me/api/v1.0/merchant/authentication'
+            $auth_url = $this->testmode ? 'https://auth.sandbox.spotii.me/api/v1.0/merchant/authentication'
                 : 'https://auth.spotii.me/api/v1.0/merchant/authentication/';
 
             $headers = array(
@@ -157,7 +157,7 @@ function spotii_init_gateway_class()
                     'title' => 'Enable/Disable',
                     'label' => 'Enable Spotii Gateway',
                     'type' => 'checkbox',
-                    'description' => __('Don&rsquo;t have a Spotii Merchant account yet?', 'woocommerce') . ' ' . '<a href="https://dashboard.dev.spotii.me/signup" target="_blank">' . __('Apply online today!', 'woocommerce') . '</a>',
+                    'description' => __('Don&rsquo;t have a Spotii Merchant account yet?', 'woocommerce') . ' ' . '<a href="https://dashboard.sandbox.spotii.me/signup" target="_blank">' . __('Apply online today!', 'woocommerce') . '</a>',
                     'default' => 'no',
                 ),
                 'title' => array(
@@ -278,7 +278,7 @@ function spotii_init_gateway_class()
                 throw new Exception(__('Currency is not supported by Spotii'));
             }
             try {
-                $url = $this->testmode ? 'https://api.dev.spotii.me/api/v1.0/checkouts/'
+                $url = $this->testmode ? 'https://api.sandbox.spotii.me/api/v1.0/checkouts/'
                     : 'https://api.spotii.me/api/v1.0/checkouts/';
                 $payload = $this->get_checkout_payload($order);
                 $response = wp_remote_post($url, $payload);
@@ -457,7 +457,7 @@ function spotii_init_gateway_class()
 
             $order = wc_get_order($order_id);
 
-            $url_part = $this->testmode ? 'https://api.dev.spotii.me/api/v1.0/orders/'
+            $url_part = $this->testmode ? 'https://api.sandbox.spotii.me/api/v1.0/orders/'
                 : 'https://api.spotii.me/api/v1.0/orders/';
             $url = $url_part . $order_id . '/refund';
 
@@ -506,7 +506,7 @@ function spotii_init_gateway_class()
         <button style="display:none" id="closeclick">set overlay closeClick to false</button>                                
         <button style="display:none" id="closeiframebtn">set overlay closeClick to false</button>
         <div class="fancy-box-container">
-            <a id="fancy" style="display: none;" class="fancy-box" href="">open fancybox</a>
+            <a id="fancy" style="display: none;" class="fancy-box lightbox" href="">open fancybox</a>
         </div>
         <a href="#top" style="display:none"></a>
         '; 
@@ -533,7 +533,7 @@ function spotii_order_update() {
             $redirect_url = $order->get_checkout_order_received_url();
             // wp_redirect($redirect_url);
             error_log('redirect_url ' . $redirect_url);
-            //echo json_encode(array('result' => 'success', 'redirect' => $redirect_url));
+            echo json_encode(array('result' => 'success', 'redirect' => $redirect_url));
             die;
         } catch (Exception $e) {
             error_log("Error on spotii_response handler[Spotii spotii_response_handler]: " . $e->getMessage());
@@ -545,7 +545,7 @@ function spotii_order_update() {
         $order->update_status('failed', __('Payment with Spotii failed', 'woocommerce'));
         $redirect_url = $order->get_cancel_order_url();
         // wp_redirect($redirect_url);
-        //echo json_encode(array('result' => 'error', 'redirect' => $redirect_url));
+        echo json_encode(array('result' => 'error', 'redirect' => $redirect_url));
         die;
     }
 }

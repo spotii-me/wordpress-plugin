@@ -123,8 +123,8 @@ jQuery(document).ready(function ($) {
       n = createElement("span", { className: "sptii-spinnerText" }, t);
     return n.appendChild(a), n;
   }
-
-    showOverlay = function () {
+  // Show Overlay 
+  showOverlay = function () {
     const e = createElement("div", { className: "sptii-overlay" }, ""),
       t = createElement("span", { className: "sptii-logo" }, Logo());
     document.getElementsByTagName("body")[0].appendChild(e),
@@ -132,16 +132,12 @@ jQuery(document).ready(function ($) {
       e.appendChild(SpinTextNode());
   };
 
-  //Open fancybox
+  //Open lightbox
   openIframeSpotiiCheckout = function (checkoutUrl) {
-    $(".fancy-box").attr("href", checkoutUrl);
-    openIFrame();
+    $(".fancy-box").attr("href", checkoutUrl).attr("data-src", checkoutUrl);
+    loadIFrame();
   };
-  $(document).on("click", "#closeiframebtn", function () {
-    closeIFrame();
-    // location.reload();
-  });
-
+  // orderUpdate
   spottiCapture = function (orderId, status, curr, total) {
     $.ajax({
       type: "post",
@@ -155,15 +151,16 @@ jQuery(document).ready(function ($) {
         total: total
       },
       success: function (data) {
-		if(data.result == "success"){
-        location.replace(data.redirect);
-		console.log("done");}
-		else {
-		$(document).on("click", "#closeiframebtn", function () {
-			closeIFrame();
-			window.location.href = data.redirect;
-		});
-		console.log("error");
+      if(data.result == "success"){
+          closeIFrame();
+          location.replace(data.redirect);
+          console.log("done");}
+      else {
+      $(document).on("click", "#closeiframebtn", function () {
+        closeIFrame();
+        window.location.href = data.redirect;
+      });
+      console.log("error");
 		}
       },
       error: function (data) {
@@ -183,38 +180,33 @@ jQuery(document).ready(function ($) {
 
   window.closeIFrameOnCompleteOrder = function ({ status }) {
     console.log("Order state - ", status);
-	if (first){
-		first=false;
-    var orderId = $.cookie("orderId");
-    var curr = $.cookie("curr");
-    var total = $.cookie("total");
-    $.removeCookie("total");
-    $.removeCookie("curr");
-    $.removeCookie("orderId");
+    if (first){
+      first=false;
+      var orderId = $.cookie("orderId");
+      var curr = $.cookie("curr");
+      var total = $.cookie("total");
+      $.removeCookie("total");
+      $.removeCookie("curr");
+      $.removeCookie("orderId");
 
-    $(".sptii-overlay").remove();
-    $(".sptii-content").remove();
-    //const root = document.getElementById(config.parentElementId);
-    switch (status) {
-      case successCheckOutStatus: {
-        spottiCapture(orderId, "completed", curr, total);
-        break;
-      }
-      case failedCheckOutStatus: {
-        spottiCapture(orderId, "canceled", curr, total);
-        submit_error(
-          '<div class="woocommerce-error">Payment with Spotii failed. Please try again</div>'
-        ); // eslint-disable-line max-len
-        break;
-      }
-	}
-}
-
-  };
-  $("a[href='#top']").click(function () {
-    $("html, body").animate({ scrollTop: 100 }, "slow");
-    return false;
-  });
+      $(".sptii-overlay").remove();
+      $(".sptii-content").remove();
+      //const root = document.getElementById(config.parentElementId);
+      switch (status) {
+        case successCheckOutStatus: {
+          spottiCapture(orderId, "completed", curr, total);
+          break;
+        }
+        case failedCheckOutStatus: {
+          spottiCapture(orderId, "canceled", curr, total);
+          submit_error(
+            '<div class="woocommerce-error">Payment with Spotii failed. Please try again</div>'
+          ); // eslint-disable-line max-len
+          break;
+        }
+    }
+  }
+};
 
   submit_error = function (error_message) {
     var checkout_form = $("form.checkout");
