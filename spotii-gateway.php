@@ -47,17 +47,17 @@ function spotii_init_gateway_class()
         $wp_scripts->registered['jquery-core']->src = 'https://code.jquery.com/jquery-3.5.1.min.js';
         $wp_scripts->registered['jquery']->deps = ['jquery-core'];
        
-        wp_enqueue_style('spotii-gateway', plugins_url('/spotii-gateway/assets/css/spotii-checkout.css', dirname(__FILE__)), array(), true);
-        wp_enqueue_script( 'spotii-widget', plugins_url('spotii-gateway/assets/js/spotii-product-widget.js', dirname(__FILE__)), false, null);
+        wp_enqueue_style('spotii-gateway',plugin_dir_url( __FILE__ ) .  'assets/css/spotii-checkout.css', true);
+        wp_enqueue_script( 'spotii-widget', plugin_dir_url( __FILE__ ) . 'assets/js/spotii-product-widget.js', array('jquery'), '2.0', true);
         if (is_checkout() ) {
-            // fancybox 
-            wp_enqueue_style( 'spotii-fancybox', esc_url_raw( 'https://widget.spotii.me/v1/javascript/fancybox-2.0.min.css' ), array(), true );
-            wp_enqueue_script( 'spotii-fancybox', esc_url_raw( 'https://widget.spotii.me/v1/javascript/fancybox-2.0.min.js' ), array('jquery'), '2.0', true  );
+            // lightbox 
+            wp_enqueue_style( 'spotii-lightbox', esc_url_raw( 'https://demo.chodri.com/iframe-lightbox.css' ), array(), true );
+            wp_enqueue_script( 'spotii-lightbox', esc_url_raw( 'https://demo.chodri.com/iframe-lightbox.js' ), array('jquery'), '2.0', true  );
         }
         // spotii checkout 
         wp_enqueue_script( 'spotii-checkout', plugin_dir_url( __FILE__ ) . 'assets/js/spotii-checkout.js', array('jquery'), '2.0', true );
         if (is_checkout() ) {
-            // over ride woo commerce checkout js 
+            // override woo commerce checkout js 
             wp_deregister_script('wc-checkout');
             wp_enqueue_script('wc-checkout', plugin_dir_url( __FILE__ ) . 'assets/js/woocommerce-checkout.js', array('jquery'), '2.0', true);
         }
@@ -506,7 +506,7 @@ function spotii_init_gateway_class()
         <button style="display:none" id="closeclick">set overlay closeClick to false</button>                                
         <button style="display:none" id="closeiframebtn">set overlay closeClick to false</button>
         <div class="fancy-box-container">
-            <a id="fancy" style="display: none;" class="fancy-box" href="">open fancybox</a>
+            <a id="fancy" style="display: none;" class="fancy-box lightbox" href="">open fancybox</a>
         </div>
         <a href="#top" style="display:none"></a>
         '; 
@@ -533,7 +533,7 @@ function spotii_order_update() {
             $redirect_url = $order->get_checkout_order_received_url();
             // wp_redirect($redirect_url);
             error_log('redirect_url ' . $redirect_url);
-            //echo json_encode(array('result' => 'success', 'redirect' => $redirect_url));
+            echo json_encode(array('result' => 'success', 'redirect' => $redirect_url));
             die;
         } catch (Exception $e) {
             error_log("Error on spotii_response handler[Spotii spotii_response_handler]: " . $e->getMessage());
@@ -545,7 +545,7 @@ function spotii_order_update() {
         $order->update_status('failed', __('Payment with Spotii failed', 'woocommerce'));
         $redirect_url = $order->get_cancel_order_url();
         // wp_redirect($redirect_url);
-        //echo json_encode(array('result' => 'error', 'redirect' => $redirect_url));
+        echo json_encode(array('result' => 'error', 'redirect' => $redirect_url));
         die;
     }
 }
