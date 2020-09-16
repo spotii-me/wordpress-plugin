@@ -1,5 +1,6 @@
 /*! jquery.cookie v1.4.1 | MIT */
 var first = true;
+//var rejectGlobal ="#";
 !(function (a) {
   "function" == typeof define && define.amd
     ? define(["jquery"], a)
@@ -131,6 +132,14 @@ jQuery(document).ready(function ($) {
       e.appendChild(t),
       e.appendChild(SpinTextNode());
   };
+  function removeOverlay() {
+    var overlay = document.getElementsByClassName("sptii-overlay")[0];
+    document.getElementsByTagName("body")[0].removeChild(overlay);
+  }
+  $(document).on("click", "#closeiframebtn", function () {
+    closeIFrame();
+    removeOverlay();
+  });
 
   //Open lightbox
   openIframeSpotiiCheckout = function (checkoutUrl) {
@@ -154,13 +163,14 @@ jQuery(document).ready(function ($) {
       if(data.result == "success"){
           closeIFrame();
           location.replace(data.redirect);
-          console.log("done");}
-      else {
+          //console.log("done");
+        }else {
       $(document).on("click", "#closeiframebtn", function () {
         closeIFrame();
         window.location.href = data.redirect;
       });
-      console.log("error");
+      window.rejectGlobal = data.redirect;
+     // console.log("error ");
 		}
       },
       error: function (data) {
@@ -168,7 +178,7 @@ jQuery(document).ready(function ($) {
           closeIFrame();
           window.location.href = data.redirect;
         });
-        console.log("error "+data);
+        //console.log("error "+data);
       },
     });
   };
@@ -178,8 +188,8 @@ jQuery(document).ready(function ($) {
   var submittedCheckOutStatus = "SUBMITTED";
   var successCheckOutStatus = "SUCCESS";
 
-  window.closeIFrameOnCompleteOrder = function ({ status }) {
-    console.log("Order state - ", status);
+  window.closeIFrameOnCompleteOrder = function ({ status , hidePopup}) {
+    //console.log("Order state - ", status);
     if (first){
       first=false;
       var orderId = $.cookie("orderId");
@@ -205,6 +215,9 @@ jQuery(document).ready(function ($) {
           break;
         }
     }
+  }else if(hidePopup){
+    //console.log("back to merchant");
+    window.location.href = window.rejectGlobal;
   }
 };
 

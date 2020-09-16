@@ -570,7 +570,7 @@ jQuery( function( $ ) {
 				});
 			}
 		}else{
-			openIFrame();
+			loadIFrame();
 		}
 			return false;
 		
