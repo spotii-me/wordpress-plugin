@@ -106,7 +106,7 @@ function spotii_init_gateway_class()
             
             add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
 
-            $auth_url = $this->testmode ? 'https://auth.dev.spotii.me/api/v1.0/merchant/authentication'
+            $auth_url = $this->testmode ? 'https://auth.sandbox.spotii.me/api/v1.0/merchant/authentication'
                 : 'https://auth.spotii.me/api/v1.0/merchant/authentication/';
 
             $headers = array(
@@ -157,7 +157,7 @@ function spotii_init_gateway_class()
                     'title' => 'Enable/Disable',
                     'label' => 'Enable Spotii Gateway',
                     'type' => 'checkbox',
-                    'description' => __('Don&rsquo;t have a Spotii Merchant account yet?', 'woocommerce') . ' ' . '<a href="https://dashboard.dev.spotii.me/signup" target="_blank">' . __('Apply online today!', 'woocommerce') . '</a>',
+                    'description' => __('Don&rsquo;t have a Spotii Merchant account yet?', 'woocommerce') . ' ' . '<a href="https://dashboard.sandbox.spotii.me/signup" target="_blank">' . __('Apply online today!', 'woocommerce') . '</a>',
                     'default' => 'no',
                 ),
                 'title' => array(
@@ -278,7 +278,7 @@ function spotii_init_gateway_class()
                 throw new Exception(__('Currency is not supported by Spotii'));
             }
             try {
-                $url = $this->testmode ? 'https://api.dev.spotii.me/api/v1.0/checkouts/'
+                $url = $this->testmode ? 'https://api.sandbox.spotii.me/api/v1.0/checkouts/'
                     : 'https://api.spotii.me/api/v1.0/checkouts/';
                 $payload = $this->get_checkout_payload($order);
                 $response = wp_remote_post($url, $payload);
@@ -457,7 +457,7 @@ function spotii_init_gateway_class()
 
             $order = wc_get_order($order_id);
 
-            $url_part = $this->testmode ? 'https://api.dev.spotii.me/api/v1.0/orders/'
+            $url_part = $this->testmode ? 'https://api.sandbox.spotii.me/api/v1.0/orders/'
                 : 'https://api.spotii.me/api/v1.0/orders/';
             $url = $url_part . $order_id . '/refund';
 
