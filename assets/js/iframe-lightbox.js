@@ -160,11 +160,9 @@ function loadIFrame(){
 
 window.addEventListener('keydown', function(e){
     if((e.key=='Escape'||e.key=='Esc'||e.keyCode==27)){
-		closeIFrame()
+		closeIFrame();
     }
 }, true);
-
-
 
 window.addEventListener ? window.addEventListener("message", onMessage, !1) : window.attachEvent && window.attachEvent("onmessage", onMessage, !1);
 

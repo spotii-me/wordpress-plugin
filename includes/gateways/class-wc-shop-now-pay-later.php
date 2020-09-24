@@ -1,5 +1,4 @@
 <?php
-
 /*
 /* Shop Now Pay Later
 */
@@ -24,8 +23,8 @@ class WC_Spotii_Gateway_Shop_Now_Pay_Later extends WC_Payment_Gateway{
         return apply_filters('woocommerce_gateway_icon', $icon, $this->id);
     }
     /*
-        * Get description text for Spotii option on checkout page
-        */
+    * Get description text for Spotii option on checkout page
+    */
     public function payment_fields(){
 
         $total = WC()->cart->total;
@@ -60,7 +59,6 @@ class WC_Spotii_Gateway_Shop_Now_Pay_Later extends WC_Payment_Gateway{
             </div>
             ';
     }
-
     /*
     * Process payments: magic begins here
     */
@@ -68,12 +66,16 @@ class WC_Spotii_Gateway_Shop_Now_Pay_Later extends WC_Payment_Gateway{
 
         return processPayment($order_id, $this, "Shop Now Pay Later", "wc_spotii_gateway_shop_now_pay_later");
     }
-
     /**
-     * Process refunds
-     */
-    public function process_refund($order_id, $amount = null, $reason = ''){
-
-        return processRefund($order_id, $amount = null, $reason = '', $this);
-    }
+	 * Called when Spotii checkout page redirects back to merchant page
+	 */
+	public function spotii_response_handler(){
+		return spotiiResponseHandler($this);
+	}
+    /**
+	 * Process refunds
+	 */
+	public function process_refund($order_id, $amount = null, $reason = ''){
+		return processRefund($order_id, $amount, $reason, $this);
+	}
 }

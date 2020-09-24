@@ -123,36 +123,43 @@ add_action('admin_head', 'admin_js');
 */
 function spotii_order_update(){
 
-    $order_id = $_POST["order_id"];
-    $order_status = $_POST["status"];
-    $spotii_total = floatval($_POST["total"]);
-    $spotii_curr = $_POST["curr"];
-
-    $order = wc_get_order($order_id);
-    error_log('orderstatus' . $order->get_status());
-
-    if ($order_status == "completed" && check_amount($spotii_total, $spotii_curr, floatval($order->get_total()), $order->get_currency())) {
-        try {
-            $order->add_order_note('Payment successful');
-            $order->payment_complete();
-            $redirect_url = $order->get_checkout_order_received_url();
-            // wp_redirect($redirect_url);
-            error_log('redirect_url ' . $redirect_url);
-            echo json_encode(array('result' => 'success', 'redirect' => $redirect_url));
+    $order_id = isset($_POST["order_id"]) ? $_POST["order_id"] : "";
+    $order_status = isset($_POST["status"]) ? $_POST["status"] : "";
+    $spotii_total = isset($_POST["total"]) ? floatval($_POST["total"]) : "";
+    $spotii_curr = isset($_POST["curr"]) ? $_POST["curr"] : "";
+    
+    if(!empty($spotii_total)){
+        $order = wc_get_order($order_id);
+        error_log('orderstatus' . $order->get_status());
+    
+        if ($order_status == "completed" && check_amount($spotii_total, $spotii_curr, floatval($order->get_total()), $order->get_currency())) {
+            try {
+                $order->add_order_note('Payment successful');
+                $order->payment_complete();
+                $redirect_url = $order->get_checkout_order_received_url();
+                error_log('redirect_url ' . $redirect_url);
+                echo json_encode(array('result' => 'success', 'redirect' => $redirect_url));
+                die;
+            } catch (Exception $e) {
+                error_log("Error on spotii_response handler[Spotii spotii_response_handler]: " . $e->getMessage());
+            }
+        } else if ($order_status == "canceled" || !check_amount($spotii_total, $spotii_curr, $order->get_total(), $order->get_currency())) {
+            // If you are here, payment was unsuccessful
+            $order->add_order_note('Payment with Spotii failed');
+            wc_add_notice(__('Checkout Error: ', 'woothemes') . "Payment with Spotii failed. Please try again", 'error');
+            $order->update_status('failed', __('Payment with Spotii failed', 'woocommerce'));
+            $redirect_url = $order->get_cancel_order_url();
+            echo json_encode(array('result' => 'error', 'redirect' => $redirect_url));
             die;
-        } catch (Exception $e) {
-            error_log("Error on spotii_response handler[Spotii spotii_response_handler]: " . $e->getMessage());
         }
-    } else if ($order_status == "canceled" || !check_amount($spotii_total, $spotii_curr, $order->get_total(), $order->get_currency())) {
-        // If you are here, payment was unsuccessful
-        $order->add_order_note('Payment with Spotii failed');
-        wc_add_notice(__('Checkout Error: ', 'woothemes') . "Payment with Spotii failed. Please try again", 'error');
-        $order->update_status('failed', __('Payment with Spotii failed', 'woocommerce'));
+    }else{
+        $order = wc_get_order($order_id);
         $redirect_url = $order->get_cancel_order_url();
-        // wp_redirect($redirect_url);
-        echo json_encode(array('result' => 'error', 'redirect' => $redirect_url));
+        echo json_encode(array('result' => 'success', 'redirect' => $redirect_url));
         die;
     }
+
+    
 }
 add_action('wp_ajax_spotii_order_update', 'spotii_order_update');
 add_action('wp_ajax_nopriv_spotii_order_update', 'spotii_order_update');

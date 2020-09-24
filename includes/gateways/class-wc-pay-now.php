@@ -1,5 +1,4 @@
 <?php
-
 /*
 /* Pay Now with spotii 
 */
@@ -22,9 +21,15 @@ class WC_Spotii_Gateway_Pay_Now extends WC_Payment_Gateway{
 		return processPayment($order_id, $this, "Pay Now", "wc_spotii_gateway_pay_now");
 	}
 	/**
+	 * Called when Spotii checkout page redirects back to merchant page
+	 */
+	public function spotii_response_handler(){
+		return spotiiResponseHandler($this);
+	}
+	/**
 	 * Process refunds
 	 */
 	public function process_refund($order_id, $amount = null, $reason = ''){
-		return processRefund($order_id, $amount = null, $reason = '', $this);
+		return processRefund($order_id, $amount, $reason, $this);
 	}
 }

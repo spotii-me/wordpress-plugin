@@ -6,8 +6,8 @@ function processPayment($order_id, $th, $type = null, $addon){
     $order = new WC_Order($order_id);
     // Spotii minimum limit 
     if ($type != "Pay Now" && (int)$order->total < 200) {
-        error_log("Exception [WP_Error_Spotii Process Payment] Order total less than spotii minimum limit: " . $curr);
-        throw new Exception(__('Order total less than spotii minimum limit'));
+        error_log("Exception [WP_Error_Spotii] You don't quite have enough in your basket: Spotii is available for purchases over AED 200. With a little more shopping, you can split your payment over 4 cost-free instalments.");
+        throw new Exception(__("You don't quite have enough in your basket: Spotii is available for purchases over AED 200. With a little more shopping, you can split your payment over 4 cost-free instalments."));
     }
 
     $orderId = $order_id;
@@ -21,8 +21,8 @@ function processPayment($order_id, $th, $type = null, $addon){
         $url = $th->api . 'checkouts/';
 
         $payload = get_checkout_payload($order, $th, $type, $addon);
-
         $response = wp_remote_post($url, $payload);
+        add_action('woocommerce_api_' . $addon, array($th, 'spotii_response_handler'));
 
 
         if (is_wp_error($response)) {

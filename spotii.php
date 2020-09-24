@@ -21,8 +21,8 @@
  */
 defined( 'ABSPATH' ) || exit;
 
-require __DIR__ . '/src/cart-widget.php';
-require __DIR__ . '/src/product-widget.php';
+require __DIR__ . '/includes/settings/wc-spotii-cart-widget.php';
+require __DIR__ . '/includes/settings/wc-spotii-product-widget.php';
 
 
 /*
@@ -45,17 +45,19 @@ add_action('plugins_loaded', 'spotii_init_gateway_class');
 
 function spotii_init_gateway_class(){
 
-    if (class_exists('WC_Spotii_Gateway') || !class_exists('WC_Payment_Gateway')) return;
+    if (class_exists('WC_Spotii_Gateway_Pay_Now') || class_exists('WC_Spotii_Gateway_Shop_Now_Pay_Later') || !class_exists('WC_Payment_Gateway')) return;
 
     define( 'WC_SPOTII_DIR_PATH', plugin_dir_path( __FILE__ ) );
     /*
     /* Include files
     */
     require_once WC_SPOTII_DIR_PATH . 'includes/settings/wc-spotii-gateway-parameters.php';
-    require_once WC_SPOTII_DIR_PATH . 'includes/settings/wc-spotii-form-fileds.php';
-    require_once WC_SPOTII_DIR_PATH . 'includes/settings/wc-spotii-vailation.php';
+    require_once WC_SPOTII_DIR_PATH . 'includes/request/wc-spotii-auth.php';
+    require_once WC_SPOTII_DIR_PATH . 'includes/settings/wc-spotii-form-fields.php';
+    require_once WC_SPOTII_DIR_PATH . 'includes/settings/wc-spotii-validation.php';
     require_once WC_SPOTII_DIR_PATH . 'includes/request/wc-spotii-payload.php';
     require_once WC_SPOTII_DIR_PATH . 'includes/request/wc-spotii-process-payment.php';
+    require_once WC_SPOTII_DIR_PATH . 'includes/request/wc-spotii-response-handler.php';
     require_once WC_SPOTII_DIR_PATH . 'includes/request/wc-spotii-refund.php';
     /*
     * Load Spotii Gateway

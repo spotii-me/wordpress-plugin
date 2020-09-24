@@ -1,6 +1,7 @@
 <?php 
-
-
+/*
+/* add cart widget 
+*/
 function add_cart_widget($cart){
 global $woocommerce;
 $instal = wc_price($woocommerce->cart->get_cart_contents_total() / 4);

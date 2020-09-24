@@ -1,6 +1,7 @@
 <?php 
-
-
+/*
+/* add product widget 
+*/
 function add_product_widget(){
 	global $product;
   $instal = wc_price($product->get_price() / 4);

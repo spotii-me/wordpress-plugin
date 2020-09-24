@@ -33,8 +33,7 @@ function check_amount($spotii_amount, $spotii_currency, $merchant_amount, $merch
 /*
 /* validate Currency
 */
-function validate_curr($curr)
-{
+function validate_curr($curr){
 
     if ($curr == "AED" || $curr == "SAR" || $curr == "USD") {
         return true;

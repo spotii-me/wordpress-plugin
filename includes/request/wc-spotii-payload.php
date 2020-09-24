@@ -4,6 +4,7 @@
  */
 function get_checkout_payload($order, $th, $type, $addon){
     $order_id = $order->get_id();
+    spotiiAuth($th, $addon, $order->get_currency());
     $headers =  getHeader($th);
     $notify_url = get_home_url(null, "?wc-api=" . $addon);
     $body = array(
