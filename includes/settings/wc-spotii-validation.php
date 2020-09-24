@@ -12,11 +12,11 @@ function check_amount($spotii_amount, $spotii_currency, $merchant_amount, $merch
                         $merchant_amount = $merchant_amount * 3.6730;
                         break;
                     case "SAR":
-                        $merchant_amount = $merchant_amount * 0.9506;
+                        $merchant_amount = $merchant_amount * 0.9604;
                         break;
                 }
             }
-            if (abs(($spotii_amount - $merchant_amount)) < 6) {
+            if (abs(($spotii_amount - $merchant_amount)) < 5) {
                 return true;
             }
         } else if ($spotii_amount == $merchant_amount) {
