@@ -9,7 +9,7 @@ function form_fields($th, $type = null){
 			'title' => 'Enable/Disable',
 			'label' => $type == "Pay Now" ? "Spotii: Pay Now" : 'Spotii: Shop Now, Pay Later',
 			'type' => 'checkbox',
-			'description' => __('Don&rsquo;t have a Spotii Merchant account yet?', 'woocommerce') . ' ' . '<a href="https://dashboard.dev.spotii.me/signup" target="_blank">' . __('Apply online today!', 'woocommerce') . '</a>',
+			'description' => __('Don&rsquo;t have a Spotii Merchant account yet?', 'woocommerce') . ' ' . '<a href="https://dashboard.spotii.me/signup" target="_blank">' . __('Apply online today!', 'woocommerce') . '</a>',
 			'default' => 'no',
 		),
 		'title' => array(

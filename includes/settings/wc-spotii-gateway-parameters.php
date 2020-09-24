@@ -38,8 +38,8 @@ function gatewayParameters($th, $type = null){
     $th->testPublicKeySAR = $th->get_option('public_key_test_sar', '');
     $th->testPrivateKeySAR = $th->get_option('private_key_test_sar', '');
 
-    $th->auth = $th->testMode ? "https://auth.dev.spotii.me/api/v1.0/" : "https://auth.spotii.me/api/v1.0/";
-    $th->api = $th->testMode ? "https://api.dev.spotii.me/api/v1.0/" : "https://api.spotii.me/api/v1.0/";
+    $th->auth = $th->testMode ? "https://auth.sandbox.spotii.me/api/v1.0/" : "https://auth.spotii.me/api/v1.0/";
+    $th->api = $th->testMode ? "https://api.sandbox.spotii.me/api/v1.0/" : "https://api.spotii.me/api/v1.0/";
 
     add_action('woocommerce_update_options_payment_gateways_' . $th->id, array($th, 'process_admin_options'));
     
