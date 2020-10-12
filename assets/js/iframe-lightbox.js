@@ -136,14 +136,23 @@ function removeOverlay(){
 	document.body.querySelector(".blockUI.blockOverlay") ? document.body.querySelector(".blockUI.blockOverlay").remove() : ""
 }
 
-function onMessage(e) {
-    var o = e.data,
-		n = window.spotiiCheckoutUrl;
-    "hideOverlay" === o ?  document.body.querySelector(".sptii-overlay") ? setTimeout(function(){ removeOverlay()}, 5000) : "" : "redirectToSpotii" === o && n ? setTimeout((function() {
-        window.location = n
-    }), 1e3) : "function" == typeof window[o.func] && window[o.func].call(null, o.message)
+function onMessage(event) {
+    var data = event.data;
+    var checkoutUrl = window['spotiiCheckoutUrl'];
+    if (data === 'hideOverlay') {
+        $(".sptii-overlay").remove();
+        $('.fancybox-iframe').css({'visibility': 'visible'});
+        $('.fancybox-overlay-fixed').css({'visibility': 'visible'});
+    }
+    else if (data === 'redirectToSpotii' && checkoutUrl) {
+        setTimeout(function() {
+            window.location = checkoutUrl;
+        }, 1000); // 'milli-seconds'
+    }
+    else if (typeof(window[data.func]) == "function") {
+        window[data.func].call(null, data.message);
+    }
 }
-
 function parentFunc(e) {
     closeIFrame()
 }
