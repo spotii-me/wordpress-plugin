@@ -3,18 +3,18 @@
  * Helper to prepare checkout payload
  */
 function get_checkout_payload($order, $th, $type, $addon){
-    $order_id = $order->get_id();
+    $order_id = $order->get_meta('_alg_wc_custom_order_number') !== "" ? $order->get_meta('_alg_wc_custom_order_number') : $order->get_id();
     spotiiAuth($th, $addon, $order->get_currency());
     $headers =  getHeader($th);
     $notify_url = get_home_url(null, "?wc-api=" . $addon);
     $body = array(
         "reference" => $order_id,
         "display_reference" => $order_id,
-        "description" => "Order #" . $order_id,
+        "description" => "Woo- Commerce Order #" . $order->get_id(),
         "total" => $order->get_total(),
         "currency" => $order->get_currency(),
-        "confirm_callback_url" => $notify_url . "&o=" . $order_id . "&s=s",
-        "reject_callback_url" => $notify_url . "&o=" . $order_id . "&s=f",
+        "confirm_callback_url" => $notify_url . "&o=" . $order->get_id() . "&s=s",
+        "reject_callback_url" => $notify_url . "&o=" . $order->get_id() . "&s=f",
 
         // Order
         "order" => array(
@@ -22,9 +22,9 @@ function get_checkout_payload($order, $th, $type, $addon){
             "shipping_amount" => $order->get_shipping_total(),
             "discount" => $order->get_total_discount(),
             "customer" => array(
-                "first_name" => $order->get_user()->first_name,
-                "last_name" => $order->get_user()->last_name,
-                "email" => $order->get_user()->user_email,
+                "first_name" => $order->get_user()->first_name ? $order->get_user()->first_name : $order->get_billing_first_name(),
+                "last_name" => $order->get_user()->last_name ? $order->get_user()->last_name : $order->get_billing_last_name(),
+                "email" => $order->get_user()->user_email ? $order->get_user()->user_email : $order->get_billing_email(),
                 "phone" => $order->get_billing_phone(),
             ),
 
