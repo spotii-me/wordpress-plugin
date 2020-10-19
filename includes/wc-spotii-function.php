@@ -154,6 +154,7 @@ function spotii_order_update(){
             die;
         }
     }else{
+        wc_add_notice(__('Checkout Error: ', 'woothemes') . "Payment with Spotii failed. Please try again", 'error');
         $order = wc_get_order($order_id);
         $redirect_url = $order->get_cancel_order_url();
         echo json_encode(array('result' => 'success', 'redirect' => $redirect_url));
