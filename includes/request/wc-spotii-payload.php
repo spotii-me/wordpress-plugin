@@ -17,7 +17,7 @@ function get_checkout_payload($order, $th, $type, $addon){
         "reference" => $order_id,
         "display_reference" => $order_id,
         "description" => "Woo- Commerce Order #" . $order->get_id(),
-        "total" => number_format($total,4),
+        "total" => round($total, 4),
         "currency" => $currency,
         "confirm_callback_url" => $notify_url . "&o=" . $order->get_id() . "&s=s",
         "reject_callback_url" => $notify_url . "&o=" . $order->get_id() . "&s=f",
