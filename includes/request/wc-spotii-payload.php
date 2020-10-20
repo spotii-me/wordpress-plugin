@@ -20,14 +20,14 @@ function get_checkout_payload($order, $th, $type, $addon){
     if($currency != "AED"){
         $total = totalInAED($total,$currency);
     }
-    spotiiAuth($th, $addon, );
+    spotiiAuth($th, $addon,  $currency);
     $headers =  getHeader($th);
     $notify_url = get_home_url(null, "?wc-api=" . $addon);
     $body = array(
         "reference" => $order_id,
         "display_reference" => $order_id,
         "description" => "Woo- Commerce Order #" . $order->get_id(),
-        "total" => $total,
+        "total" => number_format($total,2),
         "currency" => "AED",
         "confirm_callback_url" => $notify_url . "&o=" . $order->get_id() . "&s=s",
         "reject_callback_url" => $notify_url . "&o=" . $order->get_id() . "&s=f",
