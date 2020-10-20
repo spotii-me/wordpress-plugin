@@ -2,17 +2,33 @@
 /**
  * Helper to prepare checkout payload
  */
+function totalInAED($total,$currency){
+    switch ($currency) {
+        case "USD":
+            $total = $total * 3.6730;
+            break;
+        case "SAR":
+            $total = $total * 0.9604;
+            break;
+    }
+    return $total;
+}
 function get_checkout_payload($order, $th, $type, $addon){
     $order_id = $order->get_meta('_alg_wc_custom_order_number') !== "" ? $order->get_meta('_alg_wc_custom_order_number') : $order->get_id();
-    spotiiAuth($th, $addon, $order->get_currency());
+    $currency = $order->get_currency();
+    $total=$order->get_total();
+    if($currency != "AED"){
+        $total = totalInAED($total,$currency);
+    }
+    spotiiAuth($th, $addon, );
     $headers =  getHeader($th);
     $notify_url = get_home_url(null, "?wc-api=" . $addon);
     $body = array(
         "reference" => $order_id,
         "display_reference" => $order_id,
         "description" => "Woo- Commerce Order #" . $order->get_id(),
-        "total" => $order->get_total(),
-        "currency" => $order->get_currency(),
+        "total" => $total,
+        "currency" => "AED",
         "confirm_callback_url" => $notify_url . "&o=" . $order->get_id() . "&s=s",
         "reject_callback_url" => $notify_url . "&o=" . $order->get_id() . "&s=f",
 
