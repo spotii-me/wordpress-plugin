@@ -160,8 +160,12 @@ function spotii_order_update(){
             );
             $response = wp_remote_post($url, $payload);
             if (is_wp_error($response)) {
-                error_log('WP_ERROR [Spotii spotii_response_handler] ');
-                throw new Exception(__('Network connection issue'));
+                $order->add_order_note('Order capture failed');
+                wc_add_notice(__('Checkout Error: ', 'woothemes') . "Order capture failed", 'error');
+                $order->update_status('failed', __('Order capture failed', 'woocommerce'));
+                $redirect_url = $order->get_cancel_order_url();
+                echo json_encode(array('result' => 'error', 'redirect' => $redirect_url));
+                die;
             }
             if (empty($response['body'])) {
                 error_log('Response Empty [Spotii spotii_response_handler] ');
