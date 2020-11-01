@@ -162,14 +162,15 @@ jQuery(document).ready(function (o) {
                 window.location.href = e
             });
         }
-    }, spottiCapture = function (e, t, i, n, api) {
+    }, spottiCapture = function (e, t, i = null, n = null, api = null) {
+        var order_id = e;
         o.ajax({
             type: "post",
             dataType: "json",
             url: spotii_ajax.ajax_url,
             data: {
                 action: "spotii_order_update",
-                order_id: e,
+                order_id: order_id,
                 status: t,
                 curr: i,
                 total: n,
@@ -182,7 +183,7 @@ jQuery(document).ready(function (o) {
             },
             error: function (e) {
                 o(document).on("click", "#closeiframebtn", function () {
-                    closeIFrame(), window.location.href = e.redirect
+                    spottiCapture(order_id, "canceled");
                 }), console.log("error " + e)
             }
         })
