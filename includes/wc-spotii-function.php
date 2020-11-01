@@ -124,7 +124,7 @@ add_action('admin_head', 'admin_js');
 */
 function spotii_order_update(){
     
-    $order_id = isset($_POST["order_id"]) ? base64_decode($_POST["order_id"]) : "";
+    $order_id = isset($_POST["order_id"]) ? $_POST["order_id"] : "";
     $order_status = isset($_POST["status"]) ? $_POST["status"] : "";
     $spotii_total = isset($_POST["total"]) ? floatval($_POST["total"]) : "";
     $spotii_curr = isset($_POST["curr"]) ? $_POST["curr"] : "";
