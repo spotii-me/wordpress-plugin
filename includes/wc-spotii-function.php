@@ -123,29 +123,67 @@ add_action('admin_head', 'admin_js');
 /* Update order status 
 */
 function spotii_order_update(){
-
-    $order_id = isset($_POST["order_id"]) ? $_POST["order_id"] : "";
+    
+    $order_id = isset($_POST["order_id"]) ? base64_decode($_POST["order_id"]) : "";
     $order_status = isset($_POST["status"]) ? $_POST["status"] : "";
     $spotii_total = isset($_POST["total"]) ? floatval($_POST["total"]) : "";
     $spotii_curr = isset($_POST["curr"]) ? $_POST["curr"] : "";
-    
-    if(!empty($spotii_total)){
-        $order = wc_get_order($order_id);
+    $spotiiApi = isset($_POST["api"]) ? $_POST["api"] : "";
+    $order = wc_get_order($order_id);
+    $dbOrderStatus = $order->get_status();
+
+    if(!empty($spotii_total) && $dbOrderStatus !== 'completed' && $dbOrderStatus !== 'processing'){
+        $spotiiRef = $order->get_meta('reference');
+        $spotiiToken = $order->get_meta('token');
         error_log('orderstatus' . $order->get_status());
-    
-        if ($order_status == "completed" && check_amount($spotii_total, $spotii_curr, floatval($order->get_total()), $order->get_currency())) {
-            try {
-                $order->add_order_note('Payment successful');
-                $order->payment_complete();
-                $redirect_url = $order->get_checkout_order_received_url();
-                error_log('redirect_url ' . $redirect_url);
-                echo json_encode(array('result' => 'success', 'redirect' => $redirect_url));
+        if ( $order_status === "completed" && check_amount($spotii_total, $spotii_curr, floatval($order->get_total()), $order->get_currency())) {
+        
+            // Capture payment
+            $url = $spotiiApi . 'orders/' . $spotiiRef .  '/capture/';
+            $headers = array(
+                'Accept' => 'application/json; indent=4',
+                'Content-Type' => 'application/json',
+                'Access-Control-Allow-Origin' => '*',
+                'Authorization' => 'Bearer ' . $spotiiToken
+            );
+            $payload = array(
+                'method' => 'POST',
+                'headers' => $headers,
+                'body' => '{}',
+                'timeout' => 20
+            );
+            $response = wp_remote_post($url, $payload);
+            if (is_wp_error($response)) {
+                error_log('WP_ERROR [Spotii spotii_response_handler] ');
+                throw new Exception(__('Network connection issue'));
+            }
+            if (empty($response['body'])) {
+                error_log('Response Empty [Spotii spotii_response_handler] ');
+                throw new Exception(__('Empty response body'));
+            }
+            $response_body = $response['body'];
+            $res = json_decode($response_body, true);
+
+            if ( $res['status'] === 'SUCCESS' && check_amount($spotii_total, $spotii_curr, floatval($order->get_total()), $order->get_currency())) {
+                try {
+                    $order->add_order_note('Payment successful');
+                    $order->payment_complete();
+                    $redirect_url = $order->get_checkout_order_received_url();
+                    error_log('redirect_url ' . $redirect_url);
+                    echo json_encode(array('result' => 'success', 'redirect' => $redirect_url));
+                    die;
+                } catch (Exception $e) {
+                    error_log("Error on spotii_response handler[Spotii spotii_response_handler]: " . $e->getMessage());
+                }
+            }else{
+                $order->add_order_note('Order capture failed');
+                wc_add_notice(__('Checkout Error: ', 'woothemes') . "Order capture failed", 'error');
+                $order->update_status('failed', __('Order capture failed', 'woocommerce'));
+                $redirect_url = $order->get_cancel_order_url();
+                echo json_encode(array('result' => 'error', 'redirect' => $redirect_url));
                 die;
-            } catch (Exception $e) {
-                error_log("Error on spotii_response handler[Spotii spotii_response_handler]: " . $e->getMessage());
             }
         } else if ($order_status == "canceled" || !check_amount($spotii_total, $spotii_curr, $order->get_total(), $order->get_currency())) {
-            // If you are here, payment was unsuccessful
             $order->add_order_note('Payment with Spotii failed');
             wc_add_notice(__('Checkout Error: ', 'woothemes') . "Payment with Spotii failed. Please try again", 'error');
             $order->update_status('failed', __('Payment with Spotii failed', 'woocommerce'));
@@ -155,7 +193,6 @@ function spotii_order_update(){
         }
     }else{
         wc_add_notice(__('Checkout Error: ', 'woothemes') . "Payment with Spotii failed. Please try again", 'error');
-        $order = wc_get_order($order_id);
         $redirect_url = $order->get_cancel_order_url();
         echo json_encode(array('result' => 'success', 'redirect' => $redirect_url));
         die;

@@ -521,6 +521,7 @@ jQuery( function( $ ) {
 								$.cookie('total', result.total);
 								$.cookie('curr', result.curr);
 								$.cookie('orderId', result.orderId);
+								$.cookie('api', result.api);
 								openIframeSpotiiCheckout(result.checkout_url);
 
 							}else if ( 'success' === result.result && $form.triggerHandler( 'checkout_place_order_success' ) !== false ) {

@@ -41,7 +41,10 @@ function processPayment($order_id, $th, $type = null, $addon){
             $redirect_url = $response_body_arr['checkout_url'];
             $curr = $response_body_arr['currency'];
             $total = $response_body_arr['total'];
-            return array('result' => 'success', 'redirect' => "", "checkout_url" => $redirect_url, "orderId" => $orderId, "total" => $total, "curr" => $curr);
+            $order->update_meta_data( 'reference', $response_body_arr['reference'] );
+            $order->update_meta_data( 'token', $th->token );
+            $order->save();
+            return array('result' => 'success', 'redirect' => "", "checkout_url" => $redirect_url, "orderId" => base64_encode($orderId), "total" => $total, "curr" => $curr, "api" => $th->api);
         } else {
             error_log("Error on process payment: " . $response_body);
             $order->add_order_note('Checkout with Spotii failed: ' . $response_body);
