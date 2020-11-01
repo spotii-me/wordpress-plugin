@@ -7,9 +7,9 @@ function spotiiResponseHandler($th){
     $order = wc_get_order($order_id);
     $spotiiRef = $order->get_meta('reference');
     $spotiiToken = $order->get_meta('token');
-    if ($order->has_status('completed') || $order->has_status('processing')) {
-        return;
-    }
+    // if ($order->has_status('completed') || $order->has_status('processing')) {
+    //     return;
+    // }
     $status = $_GET['s'];
     // Check for url param success
     if ($status == 's') {

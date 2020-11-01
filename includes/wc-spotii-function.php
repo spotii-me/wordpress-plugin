@@ -130,14 +130,20 @@ function spotii_order_update(){
     $spotii_curr = isset($_POST["curr"]) ? $_POST["curr"] : "";
     $spotiiApi = isset($_POST["api"]) ? $_POST["api"] : "";
     $order = wc_get_order($order_id);
-    $dbOrderStatus = $order->get_status();
 
-    if(!empty($spotii_total) && $dbOrderStatus !== 'completed' && $dbOrderStatus !== 'processing'){
+    if($order->has_status('completed') || $order->has_status('processing')){
+        wc_add_notice(__('Checkout Error: ', 'woothemes') . "Order already exist with ".$order->get_status()." status", 'error');
+        $redirect_url = $order->get_checkout_order_received_url();
+        echo json_encode(array('result' => 'success', 'redirect' => $redirect_url));
+        die;
+    }
+
+    if(!empty($spotii_total)){
+
         $spotiiRef = $order->get_meta('reference');
         $spotiiToken = $order->get_meta('token');
         error_log('orderstatus' . $order->get_status());
         if ( $order_status === "completed" && check_amount($spotii_total, $spotii_curr, floatval($order->get_total()), $order->get_currency())) {
-        
             // Capture payment
             $url = $spotiiApi . 'orders/' . $spotiiRef .  '/capture/';
             $headers = array(
@@ -183,7 +189,7 @@ function spotii_order_update(){
                 echo json_encode(array('result' => 'error', 'redirect' => $redirect_url));
                 die;
             }
-        } else if ($order_status == "canceled" || !check_amount($spotii_total, $spotii_curr, $order->get_total(), $order->get_currency())) {
+        } else if ($order_status == "canceled") {
             $order->add_order_note('Payment with Spotii failed');
             wc_add_notice(__('Checkout Error: ', 'woothemes') . "Payment with Spotii failed. Please try again", 'error');
             $order->update_status('failed', __('Payment with Spotii failed', 'woocommerce'));
@@ -191,14 +197,13 @@ function spotii_order_update(){
             echo json_encode(array('result' => 'error', 'redirect' => $redirect_url));
             die;
         }
+
     }else{
         wc_add_notice(__('Checkout Error: ', 'woothemes') . "Payment with Spotii failed. Please try again", 'error');
         $redirect_url = $order->get_cancel_order_url();
         echo json_encode(array('result' => 'success', 'redirect' => $redirect_url));
         die;
     }
-
-    
 }
 add_action('wp_ajax_spotii_order_update', 'spotii_order_update');
 add_action('wp_ajax_nopriv_spotii_order_update', 'spotii_order_update');
