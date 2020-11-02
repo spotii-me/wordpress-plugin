@@ -183,7 +183,7 @@ jQuery(document).ready(function (o) {
             },
             error: function (e) {
                 o(document).on("click", "#closeiframebtn", function () {
-                    spottiCapture(order_id, "canceled");
+                    spottiCapture(order_id, 'cancelled');
                 }), console.log("error " + e)
             }
         })
@@ -202,7 +202,7 @@ jQuery(document).ready(function (o) {
                 break;
             case "FAILED":
                 var errorMessage = document.getElementsByTagName("html")[0].getAttribute("lang") == "ar" ? "لقد حصل خطأ عند الدفع عن طريق سبوتي، رجاءً حاول مرة اخرى" : "Payment with Spotii failed. Please try again";
-                spottiCapture(t, "canceled", i, n, api), submit_error('<div class="woocommerce-error"></div>')
+                spottiCapture(t, 'cancelled', i, n, api), submit_error('<div class="woocommerce-error"></div>')
             }
         }
     }, submit_error = function (e) {

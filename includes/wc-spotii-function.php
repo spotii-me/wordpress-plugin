@@ -165,7 +165,7 @@ function spotii_order_update(){
             if (is_wp_error($response)) {
                 $order->add_order_note('Order capture failed');
                 wc_add_notice(__($errorChe, 'woothemes') . $errorPaymentFailed, 'error');
-                $order->update_status('failed', __('Order capture failed', 'woocommerce'));
+                $order->update_status('cancelled', __('Order capture failed', 'woocommerce'));
                 $redirect_url = $order->get_cancel_order_url();
                 echo json_encode(array('result' => 'error', 'redirect' => $redirect_url));
                 die;
@@ -192,15 +192,15 @@ function spotii_order_update(){
             }else{
                 $order->add_order_note('Order capture failed');
                 wc_add_notice(__($errorChe, 'woothemes') . $errorPaymentFailed, 'error');
-                $order->update_status('failed', __('Order capture failed', 'woocommerce'));
+                $order->update_status('cancelled', __('Order capture failed', 'woocommerce'));
                 $redirect_url = $order->get_cancel_order_url();
                 echo json_encode(array('result' => 'error', 'redirect' => $redirect_url));
                 die;
             }
-        } else if ($order_status == "canceled") {
+        } else if ($order_status == 'cancelled') {
             $order->add_order_note('Payment with Spotii failed');
             // wc_add_notice(__('Checkout Error: ', 'woothemes') . "Payment with Spotii failed. Please try again", 'error');
-            $order->update_status('failed', __($errorPaymentFailed, 'woocommerce'));
+            $order->update_status('cancelled', __($errorPaymentFailed, 'woocommerce'));
             $redirect_url = $order->get_cancel_order_url();
             echo json_encode(array('result' => 'error', 'redirect' => $redirect_url));
             die;
