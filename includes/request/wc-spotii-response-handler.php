@@ -8,13 +8,8 @@ function spotiiResponseHandler($th){
     $spotiiRef = $order->get_meta('reference');
     $spotiiToken = $order->get_meta('token');
     if ($order->has_status('completed') || $order->has_status('processing')) {
-        $order->add_order_note('Payment successful');
-        //wc_add_notice(__('Payment Success: ', 'woothemes') . "Payment complete", 'success');
-        $order->payment_complete();
         $redirect_url = $order->get_checkout_order_received_url();
         wp_redirect($redirect_url);
-        error_log('redirect_url ' . $redirect_url);
-        error_log('Order placed successfully [Spotii spotii_response_handler]');
         exit;
     }
     $status = $_GET['s'];
