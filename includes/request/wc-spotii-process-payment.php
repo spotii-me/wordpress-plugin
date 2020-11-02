@@ -4,11 +4,16 @@
 */
 function processPayment($order_id, $th, $type = null, $addon){
     $order = new WC_Order($order_id);
+    $currency = $order->get_currency();
+    $total=$order->get_total();
+    if($currency == "USD" ){
+        $total = $total * 3.6730;
+    }
     // Spotii minimum limit 
-    /*if ($type != "Pay Now" && (int)$order->total < 200) {
+    if ($type != "Pay Now" && (int)$total < 200) {
         error_log("Exception [WP_Error_Spotii] You don't quite have enough in your basket: Spotii is available for purchases over AED 200. With a little more shopping, you can split your payment over 4 cost-free instalments.");
         throw new Exception(__("You don't quite have enough in your basket: Spotii is available for purchases over AED 200. With a little more shopping, you can split your payment over 4 cost-free instalments."));
-    }*/
+    }
 
     $orderId = $order_id;
     $curr = $order->get_currency();
