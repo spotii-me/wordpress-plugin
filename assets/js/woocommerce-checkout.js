@@ -522,6 +522,10 @@ jQuery( function( $ ) {
 								$.cookie('curr', result.curr);
 								$.cookie('orderId', result.orderId);
 								$.cookie('api', result.api);
+								$('#closeiframebtn').on( "click", function() {
+									closeIFrame(); 
+									window.location.href = result.cancelURL;
+								  });
 								openIframeSpotiiCheckout(result.checkout_url);
 
 							}else if ( 'success' === result.result && $form.triggerHandler( 'checkout_place_order_success' ) !== false ) {
