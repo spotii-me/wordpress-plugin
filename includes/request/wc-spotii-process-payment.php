@@ -16,10 +16,9 @@ function processPayment($order_id, $th, $type = null, $addon){
     }
 
     $orderId = $order_id;
-    $curr = $order->get_currency();
     // validate currency 
-    if (!validate_curr($curr)) {
-        error_log("Exception [WP_Error_Spotii Process Payment] Currency is not supported by Spotii: " . $curr);
+    if (!validate_curr($currency)) {
+        error_log("Exception [WP_Error_Spotii Process Payment] Currency is not supported by Spotii: " . $currency);
         throw new Exception(__('Currency is not supported by Spotii'));
     }
     try {
@@ -44,12 +43,12 @@ function processPayment($order_id, $th, $type = null, $addon){
 
         if (array_key_exists('checkout_url', $response_body_arr)) {
             $redirect_url = $response_body_arr['checkout_url'];
-            $curr = $response_body_arr['currency'];
+            $currency = $response_body_arr['currency'];
             $total = $response_body_arr['total'];
             $order->update_meta_data( 'reference', $response_body_arr['reference'] );
             $order->update_meta_data( 'token', $th->token );
             $order->save();
-            return array('result' => 'success', 'redirect' => "", "checkout_url" => $redirect_url, "orderId" => $orderId, "total" => $total, "curr" => $curr, "api" => $th->api);
+            return array('result' => 'success', 'redirect' => "", "checkout_url" => $redirect_url, "orderId" => $orderId, "total" => $total, "curr" => $currency, "api" => $th->api);
         } else {
             error_log("Error on process payment: " . $response_body);
             $order->add_order_note('Checkout with Spotii failed: ' . $response_body);
