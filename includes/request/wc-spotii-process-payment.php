@@ -2,7 +2,9 @@
 /*
 * Process payments: magic begins here
 */
+
 function processPayment($order_id, $th, $type = null, $addon){
+    $lang = get_locale();
     $order = new WC_Order($order_id);
     $currency = $order->get_currency();
     $total=$order->get_total();
@@ -11,15 +13,17 @@ function processPayment($order_id, $th, $type = null, $addon){
     }
     // Spotii minimum limit 
     if ($type != "Pay Now" && (int)$total < 200) {
-        error_log("Exception [WP_Error_Spotii] You don't quite have enough in your basket: Spotii is available for purchases over AED 200. With a little more shopping, you can split your payment over 4 cost-free instalments.");
-        throw new Exception(__("You don't quite have enough in your basket: Spotii is available for purchases over AED 200. With a little more shopping, you can split your payment over 4 cost-free instalments."));
+        $errorMin = $lang == 'ar'? "المبلغ الاجمالي في سلتك أقل من الحد الادنى لاستخدام سبوتي: سبوتي متاح للطلبات بقيمة اعلى من 200 درهم اماراتي أو 200 ريال سعودي. بقليل من التسوق يمكن تقسيم دفعاتك على أربع أقساط خالية من التكاليف الاضافية. " : "You don't quite have enough in your basket: Spotii is available for purchases over AED 200 or SAR 200. With a little more shopping, you can split your payment over 4 cost-free instalments." ;
+        error_log("Exception [WP_Error_Spotii] ".$errorMin);
+        throw new Exception(__($errorMin));
     }
 
     $orderId = $order_id;
     // validate currency 
     if (!validate_curr($currency)) {
-        error_log("Exception [WP_Error_Spotii Process Payment] Currency is not supported by Spotii: " . $currency);
-        throw new Exception(__('Currency is not supported by Spotii'));
+        $errorCurr= $lang == 'ar'? "سبوتي لا يدعم هذه العملة" : "Currency is not supported by Spotii" ;
+        error_log("Exception [WP_Error_Spotii Process Payment] ". $errorCurr . $currency);
+        throw new Exception(__($errorCurr));
     }
     try {
         $url = $th->api . 'checkouts/';
@@ -49,13 +53,15 @@ function processPayment($order_id, $th, $type = null, $addon){
             $order->update_meta_data( 'token', $th->token );
             $order->save();
             $prefix = (strpos($redirect_url,'?') !== false) ? '&' : '/?';
-            if(get_locale() == 'ar'){
+            if($lang == 'ar'){
                 $redirect_url .= $prefix.'lang=ar';
             }else{
                 $redirect_url .= $prefix.'lang=en';
             }
             return array('result' => 'success', 'redirect' => "", "checkout_url" => $redirect_url, "orderId" => $orderId, "total" => $total, "curr" => $currency, "api" => $th->api);
         } else {
+
+            $errorMin = $lang == 'ar'? "المبلغ الاجمالي في سلتك أقل من الحد الادنى لاستخدام سبوتي: سبوتي متاح للطلبات بقيمة اعلى من 200 درهم اماراتي أو 200 ريال سعودي. بقليل من التسوق يمكن تقسيم دفعاتك على أربع أقساط  خالية من التكاليف الاضافية. " : "You don't quite have enough in your basket: Spotii is available for purchases over AED 200. With a little more shopping, you can split your payment over 4 cost-free instalments." ;
             error_log("Error on process payment: " . $response_body);
             $order->add_order_note('Checkout with Spotii failed: ' . $response_body);
             $res = json_decode($response_body, true);
@@ -63,11 +69,13 @@ function processPayment($order_id, $th, $type = null, $addon){
             if ($res['total']) {
                 foreach ($res['total'] as $msg) {
                     if (!in_array('less than allowed', $msg)) {
-                        wc_add_notice(__('Oops! ', 'woothemes') . "You don't quite have enough in your basket: Spotii is available for purchases over AED 200. With a little more shopping, you can split your payment over 4 cost-free instalments.", 'error');
+                        wc_add_notice(__('Oops! ', 'woothemes') . $errorMin, 'error');
                     }
                 }
             } else
-                wc_add_notice(__('Checkout Error: ', 'woothemes') . "Please try again", 'error');
+                $error = $lang == 'ar'? "فضلاً حاول مرة أخرى" : "Please try again" ;
+                $errorChe = $lang == 'ar' ? 'خطأ في تأكيد الطلب: ' : 'Checkout Error: ' ;
+                wc_add_notice(__($errorChe, 'woothemes') . $error, 'error');
         }
     } catch (Exception $e) {
         error_log("Error on process_payment[Spotii]: " . $e->getMessage());

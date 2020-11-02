@@ -2,7 +2,9 @@
 /*
 /* Currency Converter
 */
+
 function check_amount($spotii_amount, $spotii_currency, $merchant_amount, $merchant_currency){
+    $lang = get_locale();
     try {
 
         if ($spotii_currency != $merchant_currency) {
@@ -25,8 +27,9 @@ function check_amount($spotii_amount, $spotii_currency, $merchant_amount, $merch
             return false;
         }
     } catch (Exception $e) {
-
-        wc_add_notice(__('Checkout Error: ', 'woothemes') . "Amount from Spotii doesn't match amount from merchant. Please try again", 'error');
+        $error = $lang == 'ar' ? "المبلغ الاجمالي من سبوتي لا يطابق المبلغ الاجمالي من البائع. حاول مرة اخرى لاحقاً" : "Amount from Spotii doesn't match amount from merchant. Please try again";
+        $errorChe = $lang == 'ar' ? 'خطأ في تأكيد الطلب: ' : 'Checkout Error: ' ;
+        wc_add_notice(__($errorChe, 'woothemes') . $error , 'error');
         error_log("Error on amount match " . $e->getMessage());
     }
 }

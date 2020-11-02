@@ -32,10 +32,10 @@ function processRefund($order_id, $amount = null, $reason = '', $th){
         error_log('Response Body Empty [Spotii Process Refund] ');
         throw new Exception(__('Empty response body'));
     }
+
     // Check for capture success 
     if ($res['status'] == 'SUCCESS' &&  check_amount(floatval($res['amount']), $res['currency'], floatval($amount), $order->get_currency())) {
-        $order->add_order_note('Refund successful');
-        // wc_add_notice(__('Refund Success: ', 'woothemes') . "Refund complete", 'success');
+        wc_add_notice(__('Refund Success: ', 'woothemes') . "Refund complete", 'success');
         return true;
     } else {
         $order->add_order_note('Refund failed' . $response_body);

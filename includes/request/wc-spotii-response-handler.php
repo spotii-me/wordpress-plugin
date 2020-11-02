@@ -3,6 +3,8 @@
  * Called when Spotii checkout page redirects back to merchant page
  */
 function spotiiResponseHandler($th){
+    $lang = get_locale();
+    $errorChe = $lang == 'ar' ? 'خطأ في تأكيد الطلب: ' : 'Checkout Error: ' ;
     $order_id = $_GET['o'];
     $order = wc_get_order($order_id);
     $spotiiRef = $order->get_meta('reference');
@@ -12,6 +14,7 @@ function spotiiResponseHandler($th){
         wp_redirect($redirect_url);
         exit;
     }
+    $errorPaymentFailed = $lang == 'ar' ? "لقد حصل خطأ عند الدفع عن طريق سبوتي، رجاءً حاول مرة اخرى" : "Payment with Spotii failed. Please try again";
     $status = $_GET['s'];
     // Check for url param success
     if ($status == 's') {
@@ -33,7 +36,7 @@ function spotiiResponseHandler($th){
             $response = wp_remote_post($url, $payload);
             if (is_wp_error($response)) {
                 $order->add_order_note('Order capture failed');
-                wc_add_notice(__('Checkout Error: ', 'woothemes') . "Order capture failed", 'error');
+                wc_add_notice(__($errorChe, 'woothemes') . $errorPaymentFailed, 'error');
                 $order->update_status('failed', __('Order capture failed', 'woocommerce'));
                 $redirect_url = $order->get_cancel_order_url();
                 wp_redirect($redirect_url);
@@ -56,7 +59,7 @@ function spotiiResponseHandler($th){
                 exit;
             } else {
                 $order->add_order_note('Order capture failed');
-                wc_add_notice(__('Checkout Error: ', 'woothemes') . "Order capture failed", 'error');
+                wc_add_notice(__($errorChe, 'woothemes') . $errorPaymentFailed, 'error');
                 $order->update_status('failed', __('Order capture failed', 'woocommerce'));
                 $redirect_url = $order->get_cancel_order_url();
                 wp_redirect($redirect_url);
@@ -72,7 +75,7 @@ function spotiiResponseHandler($th){
 
     // If you are here, payment was unsuccessful
     $order->add_order_note('Payment with Spotii failed');
-    wc_add_notice(__('Checkout Error: ', 'woothemes') . "Payment with Spotii failed. Please try again", 'error');
+    wc_add_notice(__($errorChe, 'woothemes') . $errorPaymentFailed, 'error');
     $order->update_status('failed', __('Payment with Spotii failed', 'woocommerce'));
     $redirect_url = $order->get_cancel_order_url();
     wp_redirect($redirect_url);
