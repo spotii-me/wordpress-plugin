@@ -48,6 +48,12 @@ function processPayment($order_id, $th, $type = null, $addon){
             $order->update_meta_data( 'reference', $response_body_arr['reference'] );
             $order->update_meta_data( 'token', $th->token );
             $order->save();
+            $prefix = (strpos($redirect_url,'?') !== false) ? '&' : '/?';
+            if(get_locale() == 'ar'){
+                $redirect_url .= $prefix.'lang=ar';
+            }else{
+                $redirect_url .= $prefix.'lang=en';
+            }
             return array('result' => 'success', 'redirect' => "", "checkout_url" => $redirect_url, "orderId" => $orderId, "total" => $total, "curr" => $currency, "api" => $th->api);
         } else {
             error_log("Error on process payment: " . $response_body);
