@@ -1,5 +1,6 @@
 const root = document.getElementsByTagName('body')[0];
 
+
 function isMobileSafari() {
     const ua = (window && window.navigator && window.navigator.userAgent) || '';
     const iOS = !!ua.match(/iPad/i) || !!ua.match(/iPhone/i);
@@ -123,6 +124,17 @@ jQuery(document).ready(function (o) {
         }), t && t.nodeType === Node.ELEMENT_NODE ? i.appendChild(t) : i.innerHTML = t, i
     }
     
+    function checkBillingCountry(){
+        var countrybilling = document.getElementById('billing_country').value;
+       // console.log(country);
+        if(countrybilling != "AE" && countrybilling != "SA"){
+            document.getElementsByClassName('wc_payment_method payment_method_spotii_shop_now_pay_later')[0].style.display ="none";
+        }else{
+            document.getElementsByClassName('wc_payment_method payment_method_spotii_shop_now_pay_later')[0].style.display ="block";
+        }
+     }
+     document.getElementById('billing_country').onchange = checkBillingCountry;
+
     function t() {
         const o = e("p", {}, function () {
                 return navigator.vendor.startsWith('Apple')
