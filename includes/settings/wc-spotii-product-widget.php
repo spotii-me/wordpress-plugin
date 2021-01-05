@@ -6,10 +6,10 @@ function add_product_widget(){
 	global $product;
   $raw_price = $product->min_raw_price;
   if (is_null($raw_price)) {
-    $instal = wc_price($raw_price / 4);
+    $instal = wc_price($product->get_price() / 4);
   }
   else {
-    $instal = wc_price($product->get_price() / 4);
+    $instal = wc_price($raw_price / 4);
   }
   $curr = get_woocommerce_currency_symbol();
   $currency = get_woocommerce_currency();
