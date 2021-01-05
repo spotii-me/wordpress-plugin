@@ -8,6 +8,15 @@ defined( 'ABSPATH' ) || exit;
 /*
 /* ADD WIDGETS, ENQUEUE NEEDED CSS AND JS
 */
+add_filter( 'woocommerce_available_payment_gateways', 'spotii_payment_gateway_disable_country' );
+
+function spotii_payment_gateway_disable_country( $available_gateways ) {
+    if ( is_admin() ) return $available_gateways;
+    if ( WC()->customer->get_billing_country() <> 'AE' && WC()->customer->get_billing_country() <> 'SA') {
+        unset( $available_gateways['spotii_shop_now_pay_later'] );
+    }
+    return $available_gateways;
+}
 add_action('woocommerce_proceed_to_checkout', 'add_cart_widget');
 add_action('woocommerce_single_product_summary', 'add_product_widget');
 $lang = get_locale();
@@ -39,7 +48,7 @@ add_action('wp_enqueue_scripts', 'wc_spotii_script', 12);
 */
 function spotii_footer(){
     echo '
-    <button style="display:none" id="closeclick">set overlay closeClick to false</button>                                
+    <button style="display:none" id="closeclick">set overlay closeClick to false</button>
     <button style="display:none" id="closeiframebtn">set overlay closeClick to false</button>
     <div class="fancy-box-container">
         <a id="fancy" style="display: none;" class="fancy-box lightbox" href="">open fancybox</a>
@@ -54,8 +63,8 @@ add_action('wp_footer', 'spotii_footer');
 function admin_js() { ?>
     <script type="text/javascript">
 
-        jQuery(document).ready( function ($) { 
-            // hide show test keys 
+        jQuery(document).ready( function ($) {
+            // hide show test keys
             if($("input[id*='testmode']").is(':checked')){
                 $("input[id*='testmode']").parents("tr").siblings().find("input[id*='test']").parents("tr").show();
             }else{
@@ -85,12 +94,12 @@ function admin_js() { ?>
                     }else{
                         $(this).parents("tr").siblings().find("input[id*='live_aed']").parents("tr").show();
                     }
-                    
+
                 }else{
                     $(this).parents("tr").siblings().find("input[id*='_aed']").parents("tr").hide();
                 }
             })
-            // hide show sar keys 
+            // hide show sar keys
             if($("input[id*='add_sar_key']").is(':checked')){
                 if($("input[id*='testmode']").is(':checked')){
                         $("input[id*='add_sar_key']").parents("tr").siblings().find("input[id*='_sar']").parents("tr").show();
@@ -107,12 +116,12 @@ function admin_js() { ?>
                     }else{
                         $(this).parents("tr").siblings().find("input[id*='live_sar']").parents("tr").show();
                     }
-                    
+
                 }else{
                     $(this).parents("tr").siblings().find("input[id*='_sar']").parents("tr").hide();
                 }
             })
-            
+
         });
 
     </script>
@@ -120,10 +129,10 @@ function admin_js() { ?>
 
 add_action('admin_head', 'admin_js');
 /*
-/* Update order status 
+/* Update order status
 */
 function spotii_order_update(){
-    
+
     $order_id = isset($_POST["order_id"]) ? $_POST["order_id"] : "";
     $order_status = isset($_POST["status"]) ? $_POST["status"] : "";
     $spotii_total = isset($_POST["total"]) ? floatval($_POST["total"]) : "";
@@ -174,10 +183,10 @@ function spotii_order_update(){
                 error_log('Response Empty [Spotii spotii_response_handler] ');
                 throw new Exception(__('Empty response body'));
             }
-            
+
             $response_body = $response['body'];
             $res = json_decode($response_body, true);
-            
+
             if ( $res['status'] === 'SUCCESS' && check_amount($spotii_total, $spotii_curr, floatval($order->get_total()), $order->get_currency())) {
                 try {
                     $order->add_order_note('Payment successful');
