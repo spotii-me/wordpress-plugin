@@ -4,7 +4,7 @@
 */
 function add_cart_widget($cart){
 global $woocommerce;
-$amount = $woocommerce->cart->cart_contents_total + $woocommerce->cart->tax_total;
+$amount = $woocommerce->cart->total;
 $instal = wc_price($amount / 4);
 $curr = get_woocommerce_currency_symbol();
 $currency = get_woocommerce_currency();
