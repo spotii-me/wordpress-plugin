@@ -4,7 +4,7 @@
  * Plugin Name: Spotii Payment Gateway
  * Plugin URI: https://spotii.me/
  * Description: A buy-now-pay-later payment platform for WooCommerce
- * Version: 0.1.3
+ * Version: 0.1.32
  * Author: Spotii
  * Author URI: https://spotii.me
  * Text Domain: spotii
