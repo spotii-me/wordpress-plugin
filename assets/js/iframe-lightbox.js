@@ -69,6 +69,7 @@
 	IframeLightbox.prototype.create = function () {
 		var _this = this,
 		bd = d[cE]("div");
+		bd.style.pointerEvents="none";
 		this.el = d[cE]("div");
 		this.content = d[cE]("div");
 		this.body = d[cE]("div");
@@ -174,7 +175,6 @@ function openIFrame() {
 		var btn = document.querySelector("#closeiframebtn");
 		btn.addEventListener("click", function() {
 			removeOverlay();
-			document.body.querySelector(".backdrop").click();
 		});
 
 		var btn = document.querySelector(".fancy-box");
