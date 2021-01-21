@@ -183,7 +183,7 @@ jQuery(document).ready(function (o) {
             },
             error: function (e) {
                 o(document).on("click", "#closeiframebtn", function () {
-                    spottiCapture(order_id, 'cancelled');
+                    closeIFrame();spottiCapture(order_id, 'cancelled');
                 }), console.log("error " + e)
             }
         })
