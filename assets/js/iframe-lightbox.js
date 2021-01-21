@@ -175,6 +175,7 @@ function openIFrame() {
 		var btn = document.querySelector("#closeiframebtn");
 		btn.addEventListener("click", function() {
 			removeOverlay();
+			document.body.querySelector(".backdrop").click();
 		});
 
 		var btn = document.querySelector(".fancy-box");
