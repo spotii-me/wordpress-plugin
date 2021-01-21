@@ -524,7 +524,6 @@ jQuery( function( $ ) {
 								$.cookie('api', result.api);
 								$('#closeiframebtn').on( "click", function() {
 									closeIFrame(); 
-									window.location.href = result.cancelURL;
 								  });
 								openIframeSpotiiCheckout(result.checkout_url);
 
