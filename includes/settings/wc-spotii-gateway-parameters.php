@@ -27,6 +27,7 @@ function gatewayParameters($th, $type = null){
     $th->enabled = $th->get_option('enabled', 'yes');
     $th->testMode = false;
     $th->testMode = 'yes' === $th->get_option('testmode', 'yes');
+    $th->order_min = $th->get_option('order_minimum', '');
     // AED api 
     $th->publicKeyAED = $th->get_option('public_key_live_aed', '');
     $th->privateKeyAED = $th->get_option('private_key_live_aed', '');
@@ -37,6 +38,14 @@ function gatewayParameters($th, $type = null){
     $th->privateKeySAR = $th->get_option('private_key_live_sar', '');
     $th->testPublicKeySAR = $th->get_option('public_key_test_sar', '');
     $th->testPrivateKeySAR = $th->get_option('private_key_test_sar', '');
+    // Widget settings
+    $th->widget_theme = $th->get_option('widget_theme', '');
+    $th->widget_text = $th->get_option('widget_text', '');
+    $th->popup_link = $th->get_option('popup_learnMore_link', '');
+    $th->show_custom_note_ar = $th->get_option('show_custom_note_ar', '');
+    $th->show_custom_note_en = $th->get_option('show_custom_note_en', '');
+    $th->render_path_product = $th->get_option('render_path_product', '');
+    $th->render_path_cart = $th->get_option('render_path_cart', '');
 
     $th->auth = $th->testMode ? "https://auth.sandbox.spotii.me/api/v1.0/" : "https://auth.spotii.me/api/v1.0/";
     $th->api = $th->testMode ? "https://api.sandbox.spotii.me/api/v1.0/" : "https://api.spotii.me/api/v1.0/";

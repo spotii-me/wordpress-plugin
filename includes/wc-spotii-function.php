@@ -55,6 +55,21 @@ function admin_js() { ?>
     <script type="text/javascript">
 
         jQuery(document).ready( function ($) { 
+            //Conditional calue 
+            $("input[id*='order_minimum']").on("change paste keyup", function() {
+                if(parseFloat($("input[id*='order_minimum']").val()) < 200){
+                if(! $('#error-code-min').length){
+                $("#woocommerce_spotii_shop_now_pay_later_order_minimum").parent().parent().parent().append( "<p id='error-code-min' style='color:red;'>Please enter a value more than 200 AED</p>");
+                }
+                $(".submit").children(0).prop("disabled",true);
+            }
+            else{
+                if($('#error-code-min').length){
+                $("#error-code-min").hide();
+                }
+                $(".submit").children(0).prop("disabled",false);
+            }
+            });
             // hide show test keys 
             if($("input[id*='testmode']").is(':checked')){
                 $("input[id*='testmode']").parents("tr").siblings().find("input[id*='test']").parents("tr").show();
