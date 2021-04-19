@@ -7,7 +7,7 @@ function form_fields($th, $type = null){
 	$th->form_fields = array(
 		'enabled' => array(
 			'title' => 'Enable/Disable',
-			'label' => $type == "Pay Now" ? "Spotii: Pay Now" : ($type == "Annual Subscription" ? "12-Month Plan" :'Spotii: Shop Now, Pay Later'),
+			'label' => $type == "Pay Now" ? "Spotii: Pay Now" : ($type == "Annual Subscription" ? "Spotii: 12-Month Plan" :'Spotii: Shop Now, Pay Later'),
 			'type' => 'checkbox',
 			'description' => __('Don&rsquo;t have a Spotii Merchant account yet?', 'woocommerce') . ' ' . '<a href="https://dashboard.spotii.me/signup" target="_blank">' . __('Apply online today!', 'woocommerce') . '</a>',
 			'default' => 'no',
@@ -16,14 +16,14 @@ function form_fields($th, $type = null){
 			'title' => 'Title',
 			'type' => 'text',
 			'description' => 'This controls the title that the user sees during checkout',
-			'default' => $type == "Pay Now" ? "Spotii: Pay Now" : ($type == "Annual Subscription" ? "12-Month Plan" :'Spotii: Shop Now, Pay Later'),
+			'default' => $type == "Pay Now" ? "Spotii: Pay Now" : ($type == "Annual Subscription" ? "Spotii: 12-Month Plan" :'Spotii: Shop Now, Pay Later'),
 			'desc_tip' => true,
 		),
 		'description' => array(
 			'title' => 'Description',
 			'type' => 'textarea',
 			'description' => 'This controls the description which the user sees during checkout',
-			'default' => $type == "Pay Now" ? "Spotii: Pay Now" : ($type == "Annual Subscription" ? "12-Month Plan" :'Spotii: Shop Now, Pay Later'),
+			'default' => $type == "Pay Now" ? "Spotii: Pay Now" : ($type == "Annual Subscription" ? "Spotii: 12-Month Plan" :'Spotii: Shop Now, Pay Later'),
 		),
 		'testmode' => array(
 			'title' => 'Test Mode',
