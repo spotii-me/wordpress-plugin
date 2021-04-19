@@ -8,11 +8,11 @@ function processPayment($order_id, $th, $type = null, $addon){
     $order = new WC_Order($order_id);
     $currency = $order->get_currency();
     $total=$order->get_total();
-    if($currency == "USD" ){
-        $total = $total * 3.6730;
-    }
+//    if($currency == "USD" ){
+//        $total = $total * 3.6730;
+//    }
     $min = $th->order_min;
-    // Spotii minimum limit 
+    // Spotii minimum limit
     if ($type != "Pay Now" && (int)$total < $min) {
         $errorMin = $lang == 'ar'? "المبلغ الاجمالي في سلتك أقل من الحد الادنى لاستخدام سبوتي: سبوتي متاح للطلبات بقيمة اعلى من" .$min." درهم اماراتي أو ".$min." ريال سعودي. بقليل من التسوق يمكن تقسيم دفعاتك على أربع أقساط خالية من التكاليف الاضافية. " : "You don't quite have enough in your basket: Spotii is available for purchases over AED ".$min." or SAR ".$min.". With a little more shopping, you can split your payment over 4 cost-free instalments." ;
         error_log("Exception [WP_Error_Spotii] ".$errorMin);
@@ -20,7 +20,7 @@ function processPayment($order_id, $th, $type = null, $addon){
     }
 
     $orderId = $order_id;
-    // validate currency 
+    // validate currency
     if (!validate_curr($currency)) {
         $errorCurr= $lang == 'ar'? "سبوتي لا يدعم هذه العملة" : "Currency is not supported by Spotii" ;
         error_log("Exception [WP_Error_Spotii Process Payment] ". $errorCurr . $currency);

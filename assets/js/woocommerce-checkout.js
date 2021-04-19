@@ -457,7 +457,8 @@ jQuery( function( $ ) {
 			wc_checkout_form.blockOnSubmit( $( this ) );
 		},
 		submit: function() {
-			if($("input[name='payment_method']:checked").val() == "spotii_pay_now" || $("input[name='payment_method']:checked").val() == "spotii_shop_now_pay_later"){
+			if($("input[name='payment_method']:checked").val() == "spotii_pay_now" || $("input[name='payment_method']:checked").val() == "spotii_shop_now_pay_later"
+                || $("input[name='payment_method']:checked").val() == "spotii_annual_subscription"){
 				showOverlay();
 			}
 			wc_checkout_form.reset_update_checkout_timer();
@@ -506,7 +507,7 @@ jQuery( function( $ ) {
 						return raw_response;
 					}
 				} );
-				
+
 				$.ajax({
 					type:		'POST',
 					url:		wc_checkout_params.checkout_url,
@@ -523,7 +524,7 @@ jQuery( function( $ ) {
 								$.cookie('orderId', result.orderId);
 								$.cookie('api', result.api);
 								$('#closeiframebtn').on( "click", function() {
-									closeIFrame(); 
+									closeIFrame();
 								  });
 								openIframeSpotiiCheckout(result.checkout_url);
 
@@ -557,8 +558,8 @@ jQuery( function( $ ) {
 								wc_checkout_form.submit_error( '<div class="woocommerce-error">' + wc_checkout_params.i18n_checkout_error + '</div>' ); // eslint-disable-line max-len
 							}
 						}
-						
-					},	
+
+					},
 					error:	function( jqXHR, textStatus, errorThrown ) {
 						// Detach the unload handler that prevents a reload / redirect
 						wc_checkout_form.detachUnloadEventsOnSubmit();

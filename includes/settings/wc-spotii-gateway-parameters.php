@@ -1,11 +1,11 @@
 <?php
 /*
-/* Plugin Parameters 
+/* Plugin Parameters
 */
 function gatewayParameters($th, $type = null){
 
-    $th->id = $type == "Pay Now" ? "spotii_pay_now" : 'spotii_shop_now_pay_later';
-    $type == "Shop Now Pay Later" ? $th->icon = 'https://spotii.me/img/logo.svg' : '';
+    $th->id = $type == "Pay Now" ? "spotii_pay_now" : ($type == "Annual Subscription" ? "spotii_annual_subscription": 'spotii_shop_now_pay_later');
+    $type == "Shop Now Pay Later" || $type == "Annual Subscription"  ? $th->icon = 'https://spotii.me/img/logo.svg' : '';
     $th->method_title = 'Spotii';
     $th->method_description =  $type == "Pay Now" ? "Pay instant payment with spotii." : 'Have your customers pay over time for their purchases. No hidden fees, no interest.';
 
@@ -28,12 +28,12 @@ function gatewayParameters($th, $type = null){
     $th->testMode = false;
     $th->testMode = 'yes' === $th->get_option('testmode', 'yes');
     $th->order_min = $th->get_option('order_minimum', '');
-    // AED api 
+    // AED api
     $th->publicKeyAED = $th->get_option('public_key_live_aed', '');
     $th->privateKeyAED = $th->get_option('private_key_live_aed', '');
     $th->testPublicKeyAED = $th->get_option('public_key_test_aed', '');
     $th->testPrivateKeyAED = $th->get_option('private_key_test_aed', '');
-    // SAR Api 
+    // SAR Api
     $th->publicKeySAR = $th->get_option('public_key_live_sar', '');
     $th->privateKeySAR = $th->get_option('private_key_live_sar', '');
     $th->testPublicKeySAR = $th->get_option('public_key_test_sar', '');
@@ -51,5 +51,5 @@ function gatewayParameters($th, $type = null){
     $th->api = $th->testMode ? "https://api.sandbox.spotii.me/api/v1.0/" : "https://api.spotii.me/api/v1.0/";
 
     add_action('woocommerce_update_options_payment_gateways_' . $th->id, array($th, 'process_admin_options'));
-    
+
 }

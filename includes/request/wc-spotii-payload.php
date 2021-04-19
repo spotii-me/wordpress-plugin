@@ -7,10 +7,10 @@ function get_checkout_payload($order, $th, $type, $addon){
     $currency = $order->get_currency();
     $total=$order->get_total();
     spotiiAuth($th, $addon,  $currency);
-    if($currency == "USD" ){
-        $total = $total * 3.6730;
-        $currency= "AED";
-    }
+//    if($currency == "USD" ){
+//        $total = $total * 3.6730;
+//        $currency= "AED";
+//    }
     $headers =  getHeader($th);
     $notify_url = get_home_url(null, "?wc-api=" . $addon);
     $body = array(
