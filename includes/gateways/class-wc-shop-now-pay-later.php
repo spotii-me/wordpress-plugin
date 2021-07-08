@@ -28,10 +28,10 @@ class WC_Spotii_Gateway_Shop_Now_Pay_Later extends WC_Payment_Gateway{
     public function payment_fields(){
 
         $total = WC()->cart->total;
-        $instalment = wc_price($total / 4);
+        $instalment = wc_price($total / 3);
         if(get_locale() == 'ar'){
             $timesch = 'جدول المدفوعات';
-            $time = ['اليوم', 'الدفعة الثانية', 'الدفعة الثالثة', 'الدفعة الرابعة'];  
+            $time = ['اليوم', 'الدفعة الثانية', 'الدفعة الثالثة', 'الدفعة الرابعة'];
             $total = 'المجموع: '.wc_price($total) ;
             $align = 'right';
         }else{
@@ -57,10 +57,6 @@ class WC_Spotii_Gateway_Shop_Now_Pay_Later extends WC_Payment_Gateway{
                             <span class="spotii-step">
                             <span class="spotii-installment-amount">' . $instalment . '</span>
                             <span class="spotii-time-period">' . $time[2] . '</span>
-                            </span>
-                            <span class="spotii-step">
-                            <span class="spotii-installment-amount">' . $instalment . '</span>
-                            <span class="spotii-time-period">' . $time[3] . '</span>
                             </span>
                     </ul>
                 </div>
