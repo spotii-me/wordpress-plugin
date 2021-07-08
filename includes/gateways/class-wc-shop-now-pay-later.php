@@ -28,7 +28,8 @@ class WC_Spotii_Gateway_Shop_Now_Pay_Later extends WC_Payment_Gateway{
     public function payment_fields(){
 
         $total = WC()->cart->total;
-        $instalment = wc_price($total);
+        $instalment_one = wc_price($total*0.4);
+        $instalment_rest = wc_price($total*0.2);
         if(get_locale() == 'ar'){
             $timesch = 'جدول المدفوعات';
             $time = ['اليوم', 'الدفعة الثانية', 'الدفعة الثالثة', 'الدفعة الرابعة'];
@@ -47,19 +48,19 @@ class WC_Spotii_Gateway_Shop_Now_Pay_Later extends WC_Payment_Gateway{
                     <div class="spotii-bar"></div>
                     <ul class="spotii-steps">
                             <span class="spotii-highlight">
-                            <span class="spotii-installment-amount">' . $instalment*0.4 . '</span>
+                            <span class="spotii-installment-amount">' . $instalment_one. '</span>
                             <span class="spotii-time-period">' . $time[0] . '</span>
                             </span>
                             <span class="spotii-step">
-                            <span class="spotii-installment-amount">' . $instalment*0.2 . '</span>
+                            <span class="spotii-installment-amount">' . $instalment_rest . '</span>
                             <span class="spotii-time-period">' . $time[1] . '</span>
                             </span>
                             <span class="spotii-step">
-                            <span class="spotii-installment-amount">' . $instalment*0.2 . '</span>
+                            <span class="spotii-installment-amount">' . $instalment_rest . '</span>
                             <span class="spotii-time-period">' . $time[2] . '</span>
                             </span>
                             <span class="spotii-step">
-                            <span class="spotii-installment-amount">' . $instalment*0.2 . '</span>
+                            <span class="spotii-installment-amount">' . $instalment_rest . '</span>
                             <span class="spotii-time-period">' . $time[3] . '</span>
                             </span>
                     </ul>
